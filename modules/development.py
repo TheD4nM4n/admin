@@ -10,6 +10,10 @@ class DevelopmentModule(commands.Cog):
         with open("./data/rr.json", "r") as rr:
             self.links = json.load(rr)
 
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        pass
+
             
 def setup(bot):
     bot.add_cog(DevelopmentModule(bot))
