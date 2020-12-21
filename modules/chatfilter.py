@@ -11,3 +11,6 @@ class ChatFilterModule(commands.Cog):
     async def on_ready(self):
         print("'Chat Filter' module loaded.")
 
+
+def setup(bot):
+    bot.add_cog(ChatFilterModule(bot))

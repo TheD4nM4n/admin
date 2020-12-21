@@ -19,4 +19,4 @@ class ReactionRolesModule(commands.Cog):
 
 
 def setup(bot):
-    pass
+    bot.add_cog(ReactionRolesModule(bot))
