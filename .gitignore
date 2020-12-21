@@ -1,3 +1,5 @@
 /token.txt
 /.idea
+modules/__pycache__/
+venv/
 /test.py
