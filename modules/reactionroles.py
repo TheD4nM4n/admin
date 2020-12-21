@@ -8,7 +8,6 @@ class ReactionRolesModule(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        with open()
 
     @commands.Cog.listener()
     async def on_ready(self):

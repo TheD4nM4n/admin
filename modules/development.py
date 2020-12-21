@@ -11,4 +11,5 @@ class DevelopmentModule(commands.Cog):
             self.links = json.load(rr)
 
             
-
+def setup(bot):
+    bot.add_cog(DevelopmentModule(bot))
