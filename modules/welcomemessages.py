@@ -12,7 +12,9 @@ class WelcomeMessagesModule(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        pass
+
+        # This listens for a member to join the server. Once someone does, it runs the code below.
+
 
     @commands.command()
     async def welcome(self, ctx, *, args):
