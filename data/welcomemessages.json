@@ -4,8 +4,5 @@
     "How's it going, {}? I hope you enjoy your stay here at {}!",
     "No way, it's {}! Welcome to {}!",
     "We've been expecting you, {}. Welcome to {}."
-  ],
-  "channels": {
-    "server-id":
-  }
+  ]
 }
