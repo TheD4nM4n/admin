@@ -1,4 +1,4 @@
-# Admin | The official VGCUSA Discord bot
+# Admin | The Official VGCUSA Discord Bot
 
 Admin is a Discord bot designed for ease-of-use, meant for teachers who want to utilize the power of Discord to keep students connected to each other, even outside of school.
 
@@ -9,8 +9,7 @@ Admin is a lone android who sneaked onto the developer, Dan's, computer. After s
 
 ## What does Admin do?
 
-Admin helps keep Discord servers clean and free of harsh language, but that isn't all! Admin helps by assigning
- people roles when needed, keeping the Discord server running like a well oiled machine! With a 
+With a focus on education, Admin includes powerful moderation tools to keep your server free from harsh language. Admin also includes polls, to gauge your server's feeling towards certain ideas!
 
 # Features
 
