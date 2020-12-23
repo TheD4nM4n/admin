@@ -1,5 +1,6 @@
 import json
 from discord.ext import commands
+from random import choice
 
 
 class WelcomeMessagesModule(commands.Cog):
@@ -19,8 +20,11 @@ class WelcomeMessagesModule(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         # This listens for a member to join the server. Once someone does, it runs the code below.
-        if self.config[f"{member.guild.id}"]["greetings"]:
-            print("test confirmed")
+        guild_config = self.config[f"{member.guild.id}"]["greetings"]
+
+        if guild_config["enabled"]:
+            welcome_channel = self.bot.get_channel(guild_config["channel"])
+            await welcome_channel.send(choice(self.messages).format(member.mention, member.guild.name))
 
     @commands.command()
     async def welcome(self, ctx, *, args):
