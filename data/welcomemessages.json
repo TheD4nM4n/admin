@@ -1,8 +1,8 @@
 {
   "messages": [
-    "What's going on, {}? Welcome to {}!",
-    "How's it going, {}? I hope you enjoy your stay here at {}!",
-    "No way, it's {}! Welcome to {}!",
-    "We've been expecting you, {}. Welcome to {}."
+    "What's going on, {member}? Welcome to {guild}!",
+    "How's it going, {member}? I hope you enjoy your stay here at {guild}!",
+    "No way, it's {member}! Welcome to {guild}!",
+    "We've been expecting you, {member}. Welcome to {guild}."
   ]
 }
