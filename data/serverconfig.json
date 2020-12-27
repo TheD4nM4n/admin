@@ -1,11 +1,11 @@
 {
-  "735281894161121360": {
-    "greetings": {
-      "enabled": true,
-      "channel": 791039739725742080
-    },
-    "reaction-roles": {
-      "enabled": true
+    "735281894161121360": {
+        "greetings": {
+            "channel": 791039739725742080,
+            "enabled": true
+        },
+        "reaction-roles": {
+            "enabled": true
+        }
     }
-  }
 }
