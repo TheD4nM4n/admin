@@ -1,4 +1,5 @@
 import json
+import discord
 from discord.ext import commands
 from random import choice
 
@@ -17,10 +18,16 @@ class WelcomeMessagesModule(commands.Cog):
         with open("./data/welcomemessages.json", "r") as messages:
             self.messages = json.load(messages)['messages']
 
+    def save_configuration(self):
+        with open("./data/serverconfig.json", "w") as stored_config:
+            # This writes the configuration with the changes made to the disk.
+            json.dump(self.config, stored_config, indent=4)
+            stored_config.truncate()
+
     @commands.Cog.listener()
     async def on_member_join(self, member):
 
-        # This listens for a member to join the server. Once someone does, it runs the code below.
+        # Gets the configuration for the server that the user joined
         guild_config = self.config[f"{member.guild.id}"]["greetings"]
 
         """
@@ -33,25 +40,28 @@ class WelcomeMessagesModule(commands.Cog):
         """
 
         if guild_config["enabled"]:
-
             welcome_channel = self.bot.get_channel(guild_config["channel"])
             message = choice(self.messages).replace("{member}", member.mention).replace("{guild}", member.guild.name)
-            await welcome_channel.send(choice(self.messages).format(member.mention, member.guild.name))
+            await welcome_channel.send(message)
 
     @commands.command()
-    async def welcome(self, ctx, intent=None, channel=None):
+    @commands.has_permissions(administrator=True)
+    async def welcome(self, ctx, intent=None, channel: discord.TextChannel = None):
+
         guild_config = self.config[f"{ctx.guild.id}"]["greetings"]
 
         if intent:
             if intent.lower() == "enable":
-                pass
-
-        """
-        TODO: -welcome set #channel: Sets welcome channel for that server
-        TODO: -welcome enable/disable: Enables/disables welcome messages for that server
-        """
-
-        pass
+                guild_config["enabled"] = True
+                self.save_configuration()
+            elif intent.lower() == "disable":
+                guild_config["enabled"] = False
+                self.save_configuration()
+            elif intent.lower() == "set":
+                if channel:
+                    if channel.guild.id == ctx.guild.id:
+                        guild_config["channel"] = channel.id
+                        self.save_configuration()
 
 
 def setup(bot):
