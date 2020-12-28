@@ -1,8 +1,8 @@
 {
     "735281894161121360": {
         "greetings": {
-            "channel": 791039739725742080,
-            "enabled": true
+            "enabled": true,
+            "channel": 735281894161121365
         },
         "reaction-roles": {
             "enabled": true
