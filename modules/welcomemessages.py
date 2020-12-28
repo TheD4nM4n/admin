@@ -17,7 +17,7 @@ def save_configuration(config):
         stored_config.truncate()
 
 
-class WelcomeMessagesModule(commands.Cog):
+class GreetingsModule(commands.Cog):
 
     def __init__(self, bot):
         # Normal discord.py things
@@ -28,28 +28,32 @@ class WelcomeMessagesModule(commands.Cog):
             self.messages = json.load(messages)['messages']
 
     @commands.Cog.listener()
+    async def on_ready(self):
+        print("'Greetings' module loaded.")
+
+    @commands.Cog.listener()
     async def on_member_join(self, member):
 
         # Gets the configuration for the server that the user joined
         guild_config = load_configuration()[f"{member.guild.id}"]["greetings"]
 
         """
-                If welcome messages are enabled for the server, send a message from the list.
+                If greetings are enabled for the server, send a message from the list.
 
-                Custom messages can be added to welcomemessages.json.
+                Custom messages can be added to greetings.json.
                     Make sure to include the {member} and {guild} "tokens".
                         The {member} token will be replaced with the mention of the member joining.
                         The {guild} token will be replaced with the name of the guild.
         """
 
         if guild_config["enabled"]:
-            welcome_channel = self.bot.get_channel(guild_config["channel"])
+            greeting_channel = self.bot.get_channel(guild_config["channel"])
             message = choice(self.messages).replace("{member}", member.mention).replace("{guild}", member.guild.name)
-            await welcome_channel.send(message)
+            await greeting_channel.send(message)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def welcome(self, ctx, intent=None, channel: discord.TextChannel = None):
+    async def greetings(self, ctx, intent=None, channel: discord.TextChannel = None):
 
         config = load_configuration()
         guild_config = config[f"{ctx.guild.id}"]["greetings"]
@@ -83,8 +87,8 @@ class WelcomeMessagesModule(commands.Cog):
 
                 # Constructing the error embedded message
                 file = discord.File(fp="./assets/vgcsad.png", filename="vgcsad.png")
-                embed = discord.Embed(title="Sorry, that isn't a valid use of the **welcome** command.",
-                                      description="Try sending *-welcome* to see valid uses!",
+                embed = discord.Embed(title="Sorry, that isn't a valid use of the **greetings** command.",
+                                      description="Try sending *-greetings* to see valid uses!",
                                       color=0xff0000)
                 embed.set_thumbnail(url="attachment://vgcsad.png")
 
@@ -95,21 +99,21 @@ class WelcomeMessagesModule(commands.Cog):
 
             # Constructing the "welcome usage" embedded message
             file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
-            embed = discord.Embed(title="welcome",
-                                  description="Helps you take control of your welcome messages.",
+            embed = discord.Embed(title="greetings",
+                                  description="Helps you take control of your greetings messages.",
                                   color=0xff0000)
             embed.set_thumbnail(url="attachment://vgctired.png")
             embed.add_field(name="Intents",
-                            value="To use these, execute 'welcome *intent*'. Some intents may require arguments, "
+                            value="To use these, execute 'greetings *intent*'. Some intents may require arguments, "
                                   "and ones that do will have them shown below.",
                             inline=False)
             embed.add_field(name="set *#channel*",
-                            value="Sets the channel for welcome messages.\n"
-                                  "Example usage: *welcome set #welcome*",
+                            value="Sets the channel for greeting messages.\n"
+                                  "Example usage: *greetings set #welcome*",
                             inline=False)
             embed.add_field(name="enable/disable",
-                            value="Enables/disables welcome messages for this server.\n"
-                                  "Example usage: *welcome enable*",
+                            value="Enables/disables greeting messages for this server.\n"
+                                  "Example usage: *greetings enable*",
                             inline=False)
 
             # Sending da embed
@@ -117,4 +121,4 @@ class WelcomeMessagesModule(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(WelcomeMessagesModule(bot))
+    bot.add_cog(GreetingsModule(bot))
