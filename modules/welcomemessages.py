@@ -4,31 +4,34 @@ from discord.ext import commands
 from random import choice
 
 
+def load_configuration():
+    with open("./data/serverconfig.json", "r") as stored_config:
+        return json.load(stored_config)
+
+
+def save_configuration(config):
+    with open("./data/serverconfig.json", "w") as stored_config:
+
+        # This writes the configuration with the changes made to the disk.
+        json.dump(config, stored_config, indent=4)
+        stored_config.truncate()
+
+
 class WelcomeMessagesModule(commands.Cog):
 
     def __init__(self, bot):
         # Normal discord.py things
         self.bot = bot
 
-        # This fetches serverconfig.json and loads it into a variable.
-        with open("./data/serverconfig.json", "r") as config:
-            self.config = json.load(config)
-
         # This loads the preset messages in welcomeconfig.json.
         with open("./data/welcomemessages.json", "r") as messages:
             self.messages = json.load(messages)['messages']
-
-    def save_configuration(self):
-        with open("./data/serverconfig.json", "w") as stored_config:
-            # This writes the configuration with the changes made to the disk.
-            json.dump(self.config, stored_config, indent=4)
-            stored_config.truncate()
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
 
         # Gets the configuration for the server that the user joined
-        guild_config = self.config[f"{member.guild.id}"]["greetings"]
+        guild_config = load_configuration()[f"{member.guild.id}"]["greetings"]
 
         """
                 If welcome messages are enabled for the server, send a message from the list.
@@ -48,7 +51,8 @@ class WelcomeMessagesModule(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def welcome(self, ctx, intent=None, channel: discord.TextChannel = None):
 
-        guild_config = self.config[f"{ctx.guild.id}"]["greetings"]
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["greetings"]
 
         if intent:
 
@@ -56,14 +60,14 @@ class WelcomeMessagesModule(commands.Cog):
 
                 # This enables welcome messages for the server
                 guild_config["enabled"] = True
-                self.save_configuration()
+                save_configuration(config)
                 return await ctx.message.add_reaction("✅")
 
             elif intent.lower() == "disable":
 
                 # I give you three guesses as to what this does
                 guild_config["enabled"] = False
-                self.save_configuration()
+                save_configuration(config)
                 return await ctx.message.add_reaction("✅")
 
             elif intent.lower() == "set":
@@ -72,7 +76,7 @@ class WelcomeMessagesModule(commands.Cog):
                 if channel:
                     if channel.guild.id == ctx.guild.id:
                         guild_config["channel"] = channel.id
-                        self.save_configuration()
+                        save_configuration(config)
                         return await ctx.message.add_reaction("✅")
 
             else:
