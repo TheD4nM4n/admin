@@ -6,6 +6,12 @@
         },
         "reaction-roles": {
             "enabled": true
+        },
+        "chat-filter": {
+            "enabled": true,
+            "log-channel": null,
+            "custom-words": [],
+            "whitelisted-channels": []
         }
     }
 }
