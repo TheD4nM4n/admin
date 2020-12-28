@@ -9,7 +9,7 @@
         },
         "chat-filter": {
             "enabled": true,
-            "log-channel": null,
+            "log-channel": 735282378490249216,
             "custom-words": [],
             "whitelisted-channels": []
         }
