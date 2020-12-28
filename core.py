@@ -1,4 +1,5 @@
 import os
+import json
 
 from discord import Embed
 from discord.ext import commands
@@ -15,14 +16,47 @@ for module in os.listdir('./modules'):
         bot.load_extension(f'modules.{module[:-3]}')
 
 
+def load_configuration():
+    with open("./data/serverconfig.json", "r") as stored_config:
+        return json.load(stored_config)
+
+
+def save_configuration(config):
+    with open("./data/serverconfig.json", "w") as stored_config:
+        # This writes the configuration with the changes made to the disk.
+        json.dump(config, stored_config, indent=4)
+        stored_config.truncate()
+
+
+@bot.event
+async def on_guild_join(guild):
+    # Loads the serverconfig.json file and looks for the server in the json
+    config = load_configuration()
+
+    if guild.id not in config.keys():
+        default_config = {
+            "greetings": {
+                "enabled": True,
+                "channel": guild.system_channel.id
+            },
+            "reaction-roles": {
+                "enabled": True,
+            }
+        }
+
+        # Adds the server to the config, with the default configuration
+        config[f"{guild.id}"] = default_config
+
+        # Writes the new config to disk
+        save_configuration(config)
+
+
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def reload(ctx, module_name=None):
     if module_name is None:
 
-        active_modules = []
-        for extension in bot.extensions:
-            active_modules.append(extension)
+        active_modules = [extension for extension in bot.extensions]
 
         for module_title in active_modules:
             bot.unload_extension(module_title)
