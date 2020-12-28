@@ -17,6 +17,31 @@ def save_configuration(config):
         stored_config.truncate()
 
 
+def usage_embed():
+    file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
+    embed = discord.Embed(title="filter",
+                          description="Provides helpful settings for your chat filter.",
+                          color=0xff0000)
+    embed.set_thumbnail(url="attachment://vgctired.png")
+    embed.add_field(name="Intents",
+                    value="To use these, execute 'filter *intent*'. Some intents may require arguments, "
+                          "and ones that do will have them shown below.",
+                    inline=False)
+    embed.add_field(name="set *#channel*",
+                    value="Sets the channel for filter logs.\n"
+                          "Example usage: *filter set #log*",
+                    inline=False)
+    embed.add_field(name="enable/disable",
+                    value="Enables/disables the chat filter for this server.\n"
+                          "Example usage: *filter enable*",
+                    inline=False)
+    embed.add_field(name="add *word*",
+                    value="Adds the word specified to a server-specific blacklist.\n"
+                          "Example usage: *filter add admin*",
+                    inline=False)
+    return file, embed
+
+
 class ChatFilterModule(commands.Cog):
 
     def __init__(self, bot):
@@ -28,33 +53,145 @@ class ChatFilterModule(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+
         # Loads the chat filter configuration of the server the message was sent
         guild_config = load_configuration()[f"{message.guild.id}"]["chat-filter"]
 
         # If the message isn't sent by the bot or in a whitelisted channel...
         if message.author != self.bot.user or message.channel not in guild_config["whitelisted-channels"]:
 
-            # ...check for profanity.
-            if profanity.contains_profanity(message.content):
-                self.filter_message(message, guild_config)
+            if message.author.guild_permissions.administrator and "-filter add" in message.content:
+                pass
             else:
-                for word in guild_config["whitelisted-channels"]:
-                    if word in message.content:
-                        self.filter_message(message, guild_config)
 
-    def filter_message(self, message, config):
-        await message.delete()
-        if config["log-channel"]:
-            log_channel = self.bot.get_channel(config["log-channel"])
-            file = discord.File("./assets/vgcdisgusting.png", filename="vgcdisgusting.png")
-            embed = discord.Embed(title="I have deleted a message from a channel.",
-                                  description=f"Offender: {message.author.name}\n"
-                                              f"Offender ID: {message.author.id}\n"
-                                              f"Channel: {message.channel}\n",
-                                  color=0xff0000)
-            embed.add_field(name="Message content:", value=message.content)
-            embed.set_thumbnail(url="attachment://vgcdisgusting.png")
-            await log_channel.send(file=file, embed=embed)
+                file = discord.File("./assets/vgcdisgusting.png")
+                embed = discord.Embed(title="I have deleted a message from a channel.",
+                                      description=f"Offender: {message.author.name}\n"
+                                                  f"Offender ID: {message.author.id}\n"
+                                                  f"Channel: {message.channel}\n",
+                                      color=0xff0000)
+                embed.add_field(name="Message content:", value=message.content)
+                embed.set_thumbnail(url="attachment://vgcdisgusting.png")
+
+                # ...check for profanity.
+                if profanity.contains_profanity(message.content):
+
+                    # Delete message
+                    await message.delete()
+
+                    # If the server has a log channel set, build an embed and send it.
+                    if guild_config["log-channel"]:
+                        log_channel = self.bot.get_channel(guild_config["log-channel"])
+                        return await log_channel.send(file=file, embed=embed)
+
+                else:
+
+                    # If it can't find a swear word, it will look through the list of custom words
+                    for word in guild_config["custom-words"]:
+
+                        if word in message.content.lower():
+
+                            # Delete message
+                            await message.delete()
+
+                            # If the server has a log channel set, build an embed and send it.
+                            if guild_config["log-channel"]:
+                                log_channel = self.bot.get_channel(guild_config["log-channel"])
+                                return await log_channel.send(file=file, embed=embed)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def filter(self, ctx, intent=None, arg=None):
+
+        # Gets copies of the full config file and the server-specific config
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
+
+        if intent:
+            if intent.lower() == "enable":
+
+                guild_config["enabled"] = True
+                save_configuration(config)
+                return await ctx.message.add_reaction("✅")
+
+            elif intent.lower() == "disable":
+
+                guild_config["enabled"] = False
+                save_configuration(config)
+                return await ctx.message.add_reaction("✅")
+
+            elif intent.lower() == "set":
+
+                channels = ctx.message.channel_mentions
+
+                if channels:
+                    guild_config["log-channel"] = channels[0].id
+                    save_configuration(config)
+                    return await ctx.message.add_reaction("✅")
+                else:
+                    if arg.lower() == "none":
+                        guild_config["log-channel"] = None
+                        save_configuration(config)
+                        return await ctx.message.add_reaction("✅")
+                    else:
+                        file = discord.File(fp="./assets/vgcsad.png")
+                        embed = discord.Embed(title="Sorry, something went wrong...",
+                                              description="There was no channel mentioned in that message. Make sure "
+                                                          "you use the hashtag (#) to properly mention the channel. "
+                                                          "Go ahead and try again!",
+                                              color=0xff0000)
+                        embed.set_thumbnail(url="attachment://vgcsad.png")
+                        return await ctx.send(file=file, embed=embed)
+
+            elif intent.lower() == "add":
+
+                if arg:
+                    guild_config["custom-words"].append(arg.lower())
+                    save_configuration(config)
+                    return await ctx.message.add_reaction("✅")
+
+                else:
+                    file = discord.File(fp="./assets/vgcsad.png")
+                    embed = discord.Embed(title="Sorry, something went wrong...",
+                                          description="It looks like you didn't provide a word. Try again with a "
+                                                      "word, like *filter add admin*.",
+                                          color=0xff0000)
+                    embed.set_thumbnail(url="attachment://vgcsad.png")
+                    return await ctx.send(file=file, embed=embed)
+                    pass
+
+            elif intent.lower() == "remove":
+
+                if arg:
+                    if arg in guild_config["custom-words"]:
+                        guild_config["custom-words"].remove(arg.lower())
+                        save_configuration(config)
+                        return await ctx.message.add_reaction("✅")
+                    else:
+                        file = discord.File(fp="./assets/vgcyes.png")
+                        embed = discord.Embed(title="That word wasn't found...",
+                                              description="Looks like you didn't need to run that command, "
+                                                          "because that word isn't in your server's list!",
+                                              color=0xff0000)
+                        embed.set_thumbnail(url="attachment://vgcyes.png")
+                        return await ctx.send(file=file, embed=embed)
+
+                else:
+                    file = discord.File(fp="./assets/vgcsad.png")
+                    embed = discord.Embed(title="Sorry, something went wrong...",
+                                          description="It looks like you didn't provide a word. Try again with a "
+                                                      "word, like *filter remove admin*.",
+                                          color=0xff0000)
+                    embed.set_thumbnail(url="attachment://vgcsad.png")
+                    return await ctx.send(file=file, embed=embed)
+
+            else:
+                message = usage_embed()
+                return await ctx.send(file=message[0], embed=message[1])
+
+        else:
+            message = usage_embed()
+            return await ctx.send(file=message[0], embed=message[1])
 
 
 def setup(bot):
