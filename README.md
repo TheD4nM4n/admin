@@ -15,6 +15,13 @@ With a focus on education, Admin includes powerful moderation tools to keep your
 
 *This piece of software is a work in progress. Work will continue at the pace of the developer(s).*
 
+## Current features
+
+- Welcome messages
+    - Welcome messages automatically welcome people to your server
+    - Make your own custom messages
+    - Easy way to change the welcome channel
+
 ### Planned features
 
 - Reaction roles
