@@ -51,17 +51,65 @@ class WelcomeMessagesModule(commands.Cog):
         guild_config = self.config[f"{ctx.guild.id}"]["greetings"]
 
         if intent:
+
             if intent.lower() == "enable":
+
+                # This enables welcome messages for the server
                 guild_config["enabled"] = True
                 self.save_configuration()
+                return await ctx.message.add_reaction("✅")
+
             elif intent.lower() == "disable":
+
+                # I give you three guesses as to what this does
                 guild_config["enabled"] = False
                 self.save_configuration()
+                return await ctx.message.add_reaction("✅")
+
             elif intent.lower() == "set":
+
+                # Sets the welcome channel for the server to the channel provided
                 if channel:
                     if channel.guild.id == ctx.guild.id:
                         guild_config["channel"] = channel.id
                         self.save_configuration()
+                        return await ctx.message.add_reaction("✅")
+
+            else:
+
+                # Constructing the error embedded message
+                file = discord.File(fp="./assets/vgcsad.png", filename="vgcsad.png")
+                embed = discord.Embed(title="Sorry, that isn't a valid use of the **welcome** command.",
+                                      description="Try sending *-welcome* to see valid uses!",
+                                      color=0xff0000)
+                embed.set_thumbnail(url="attachment://vgcsad.png")
+
+                # Sending da embed
+                return await ctx.send(file=file, embed=embed)
+
+        else:
+
+            # Constructing the "welcome usage" embedded message
+            file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
+            embed = discord.Embed(title="welcome",
+                                  description="Helps you take control of your welcome messages.",
+                                  color=0xff0000)
+            embed.set_thumbnail(url="attachment://vgctired.png")
+            embed.add_field(name="Intents",
+                            value="To use these, execute 'welcome *intent*'. Some intents may require arguments, "
+                                  "and ones that do will have them shown below.",
+                            inline=False)
+            embed.add_field(name="set *#channel*",
+                            value="Sets the channel for welcome messages.\n"
+                                  "Example usage: *welcome set #welcome*",
+                            inline=False)
+            embed.add_field(name="enable/disable",
+                            value="Enables/disables welcome messages for this server.\n"
+                                  "Example usage: *welcome enable*",
+                            inline=False)
+
+            # Sending da embed
+            return await ctx.send(file=file, embed=embed)
 
 
 def setup(bot):
