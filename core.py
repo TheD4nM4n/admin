@@ -41,6 +41,12 @@ async def on_guild_join(guild):
             },
             "reaction-roles": {
                 "enabled": True,
+            },
+            "chat-filter": {
+                "enabled": True,
+                "log-channel": None,
+                "custom-words": [],
+                "whitelisted-channels": []
             }
         }
 
