@@ -36,3 +36,7 @@ With a focus on education, Admin includes powerful moderation tools to keep your
     - Easy feedback from your server members
     - Use messages sent by other users as the base
     - Have results sent to a channel
+    
+## Licensing
+
+This software is open-source under the *GNU General Public License* (version 3), and all of it's contents fall under said license.
