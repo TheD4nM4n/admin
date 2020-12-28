@@ -28,15 +28,15 @@ def usage_embed():
                           "and ones that do will have them shown below.",
                     inline=False)
     embed.add_field(name="set *#channel*",
-                    value="Sets the channel for filter logs.\n"
+                    value="Sets the channel for filter logs. Use *set none* to disable logging.\n"
                           "Example usage: *filter set #log*",
                     inline=False)
     embed.add_field(name="enable/disable",
                     value="Enables/disables the chat filter for this server.\n"
                           "Example usage: *filter enable*",
                     inline=False)
-    embed.add_field(name="add *word*",
-                    value="Adds the word specified to a server-specific blacklist.\n"
+    embed.add_field(name="add/remove *word*",
+                    value="Adds/removes the word specified to/from a server-specific blacklist.\n"
                           "Example usage: *filter add admin*",
                     inline=False)
     return file, embed
