@@ -24,7 +24,7 @@ class GreetingsModule(commands.Cog):
         self.bot = bot
 
         # This loads the preset messages in welcomeconfig.json.
-        with open("./data/welcomemessages.json", "r") as messages:
+        with open("./data/greetings.json", "r") as messages:
             self.messages = json.load(messages)['messages']
 
     @commands.Cog.listener()
@@ -100,7 +100,7 @@ class GreetingsModule(commands.Cog):
             # Constructing the "welcome usage" embedded message
             file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
             embed = discord.Embed(title="greetings",
-                                  description="Helps you take control of your greetings messages.",
+                                  description="Helps you take control of your greeting messages.",
                                   color=0xff0000)
             embed.set_thumbnail(url="attachment://vgctired.png")
             embed.add_field(name="Intents",
