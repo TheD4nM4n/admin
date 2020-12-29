@@ -8,15 +8,17 @@ from discord import Intents
 bot = commands.Bot(command_prefix="-", intents=Intents.all())
 bot.remove_command("help")
 
-with open("token.txt", "r") as token:
-    TOKEN = token.read()
 
-for module in os.listdir('./modules'):
-    if module.endswith('.py'):
-        bot.load_extension(f'modules.{module[:-3]}')
+def load_token():
+
+    # Returns the token stored in the "credentials.json" file.
+    with open("./credentials.json", "r") as credentials:
+        return json.load(credentials)["discord-token"]
 
 
 def load_configuration():
+
+    # Returns the configuration stored on disk.
     with open("./data/serverconfig.json", "r") as stored_config:
         return json.load(stored_config)
 
@@ -28,8 +30,14 @@ def save_configuration(config):
         stored_config.truncate()
 
 
+for module in os.listdir('./modules'):
+    if module.endswith('.py'):
+        bot.load_extension(f'modules.{module[:-3]}')
+
+
 @bot.event
 async def on_guild_join(guild):
+
     # Loads the serverconfig.json file and looks for the server in the json
     config = load_configuration()
 
@@ -138,4 +146,4 @@ async def disable(ctx, module_name):
         await ctx.send("Sorry, that module either doesn't exist, or is already disabled.")
 
 
-bot.run(TOKEN)
+bot.run(load_token())
