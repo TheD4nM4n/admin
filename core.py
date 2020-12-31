@@ -16,6 +16,13 @@ def load_token():
         return json.load(credentials)["discord-token"]
 
 
+def load_default_configuration():
+
+    # Returns the default configuration (for use in generating new server configurations)
+    with open("./data/serverconfig.json", "r") as stored_config:
+        return json.load(stored_config)["default"]
+
+
 def load_configuration():
 
     # Returns the configuration stored on disk.
@@ -41,24 +48,12 @@ async def on_guild_join(guild):
     # Loads the serverconfig.json file and looks for the server in the json
     config = load_configuration()
 
+    # If the server isn't in the config file, it loads the default config and modifies it to fit the server
     if guild.id not in config.keys():
-        default_config = {
-            "greetings": {
-                "enabled": True,
-                "channel": guild.system_channel.id
-            },
-            "reaction-roles": {
-                "enabled": True,
-            },
-            "chat-filter": {
-                "enabled": True,
-                "log-channel": None,
-                "custom-words": [],
-                "whitelisted-channels": []
-            }
-        }
+        default_config = load_default_configuration()
+        default_config["greetings"]["channel"] = guild.system_channel.id
 
-        # Adds the server to the config, with the default configuration
+        # Adds the server to the config, with the above configuration
         config[f"{guild.id}"] = default_config
 
         # Writes the new config to disk
