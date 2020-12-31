@@ -49,13 +49,26 @@ class ChatFilterModule(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        config = load_configuration()
+        # Loads the chat filter configuration of the server the message was sent
+
         print("'Chat Filter' module loaded.")
 
     @commands.Cog.listener()
     async def on_message(self, message):
-
+        config = load_configuration()
         # Loads the chat filter configuration of the server the message was sent
-        guild_config = load_configuration()[f"{message.guild.id}"]["chat-filter"]
+        try:
+            guild_config = config[f"{message.guild.id}"]["chat-filter"]
+        except KeyError:
+            guild_config = config[f"{message.guild.id}"]
+            guild_config["chat-filter"] = {
+                "enabled": True,
+                "log-channel": None,
+                "custom-words": [],
+                "whitelisted-channels": []
+            }
+            save_configuration(config)
 
         # If the message isn't sent by the bot or in a whitelisted channel...
         if message.author != self.bot.user or message.channel not in guild_config["whitelisted-channels"]:
@@ -63,15 +76,6 @@ class ChatFilterModule(commands.Cog):
             if message.author.guild_permissions.administrator and "-filter add" in message.content:
                 pass
             else:
-
-                file = discord.File("./assets/vgcdisgusting.png")
-                embed = discord.Embed(title="I have deleted a message from a channel.",
-                                      description=f"Offender: {message.author.name}\n"
-                                                  f"Offender ID: {message.author.id}\n"
-                                                  f"Channel: {message.channel}\n",
-                                      color=0xff0000)
-                embed.add_field(name="Message content:", value=message.content)
-                embed.set_thumbnail(url="attachment://vgcdisgusting.png")
 
                 # ...check for profanity.
                 if profanity.contains_profanity(message.content):
@@ -81,7 +85,16 @@ class ChatFilterModule(commands.Cog):
 
                     # If the server has a log channel set, build an embed and send it.
                     if guild_config["log-channel"]:
+
+                        file = discord.File("./assets/vgcdisgusting.png")
+                        embed = discord.Embed(title="I have deleted a message from a channel.",
+                                              description=f"Offender: {message.author.name}\n"
+                                                          f"Channel: {message.channel}\n",
+                                              color=0xff0000)
+                        embed.add_field(name="Message content:", value=message.content)
+                        embed.set_thumbnail(url="attachment://vgcdisgusting.png")
                         log_channel = self.bot.get_channel(guild_config["log-channel"])
+
                         return await log_channel.send(file=file, embed=embed)
 
                 else:
@@ -96,6 +109,15 @@ class ChatFilterModule(commands.Cog):
 
                             # If the server has a log channel set, build an embed and send it.
                             if guild_config["log-channel"]:
+
+                                file = discord.File("./assets/vgcdisgusting.png")
+                                embed = discord.Embed(title="I have deleted a message from a channel.",
+                                                      description=f"Offender: {message.author.name}\n"
+                                                                  f"Channel: {message.channel}\n",
+                                                      color=0xff0000)
+                                embed.add_field(name="Message content:", value=message.content)
+                                embed.set_thumbnail(url="attachment://vgcdisgusting.png")
+
                                 log_channel = self.bot.get_channel(guild_config["log-channel"])
                                 return await log_channel.send(file=file, embed=embed)
 
