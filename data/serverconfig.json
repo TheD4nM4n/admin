@@ -1,4 +1,23 @@
 {
+    "default": {
+        "greetings": {
+            "enabled": true,
+            "channel": null
+        },
+        "reaction-roles": {
+            "enabled": true
+        },
+        "chat-filter": {
+            "enabled": true,
+            "log-channel": null,
+            "custom-words": [],
+            "whitelisted-channels": []
+        },
+        "mute": {
+            "enabled": true,
+            "muted-members": []
+        }
+    },
     "735281894161121360": {
         "greetings": {
             "enabled": true,
@@ -8,8 +27,8 @@
             "enabled": true
         },
         "chat-filter": {
-            "enabled": true,
-            "log-channel": 735282378490249216,
+            "enabled": false,
+            "log-channel": null,
             "custom-words": [],
             "whitelisted-channels": []
         }
@@ -27,6 +46,29 @@
             "log-channel": 794283673301286922,
             "custom-words": [],
             "whitelisted-channels": []
+        },
+        "mute": {
+            "enabled": true,
+            "muted-members": []
+        }
+    },
+    "794309405864099880": {
+        "greetings": {
+            "enabled": true,
+            "channel": 794309405864099883
+        },
+        "reaction-roles": {
+            "enabled": true
+        },
+        "chat-filter": {
+            "enabled": true,
+            "log-channel": 794310713509150762,
+            "custom-words": [],
+            "whitelisted-channels": []
+        },
+        "mute": {
+            "enabled": true,
+            "muted-members": []
         }
     }
 }
