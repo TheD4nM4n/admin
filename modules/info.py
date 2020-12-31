@@ -2,7 +2,18 @@ from discord import Embed, File
 from discord.ext import commands
 from rawgpy import RAWG
 from html import unescape
+
+import json
 import re
+
+
+def get_key(application):
+    with open("./credentials.json") as credentials:
+        keys = json.load(credentials)
+        return keys[application]
+
+
+rawg = RAWG(get_key("rawg-key"))
 
 
 def clean_text(raw_html):
@@ -15,9 +26,7 @@ def clean_text(raw_html):
 
 
 def get_game(name):
-
     # Gets game information from rawg.io
-    rawg = RAWG("047ce837ca0c424394cde59a35cf73f4")
     results = rawg.search(name)
     game = results[0]
     game.populate()
@@ -42,6 +51,10 @@ class InfoModule(commands.Cog):
 
     @commands.command()
     async def game(self, ctx, *, arg=None):
+
+        # Makes the bot look like it is typing.
+        # Helpful for showing the bot isn't just broken.
+        await ctx.trigger_typing()
 
         # See get_game method
         game, image = get_game(arg)
