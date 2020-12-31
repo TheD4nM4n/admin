@@ -13,5 +13,20 @@
             "custom-words": [],
             "whitelisted-channels": []
         }
+    },
+    "763461951640567882": {
+        "greetings": {
+            "enabled": true,
+            "channel": 763461952584155207
+        },
+        "reaction-roles": {
+            "enabled": true
+        },
+        "chat-filter": {
+            "enabled": true,
+            "log-channel": 794283673301286922,
+            "custom-words": [],
+            "whitelisted-channels": []
+        }
     }
 }
