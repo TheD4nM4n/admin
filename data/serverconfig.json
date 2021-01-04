@@ -46,10 +46,10 @@
         "chat-filter": {
             "enabled": true,
             "log-channel": 794283673301286922,
-            "custom-words": [
-                "test"
+            "custom-words": [],
+            "whitelisted-channels": [
+                794286651928346634
             ],
-            "whitelisted-channels": [],
             "whitelisted-members": [
                 94855819769688064,
                 508786900174110724
