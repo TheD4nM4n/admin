@@ -9,28 +9,28 @@ bot = commands.Bot(command_prefix="-", intents=Intents.all())
 bot.remove_command("help")
 
 
-def load_token():
+def load_token() -> str:
 
     # Returns the token stored in the "credentials.json" file.
     with open("./credentials.json", "r") as credentials:
         return json.load(credentials)["discord-token"]
 
 
-def load_default_configuration():
+def load_default_configuration() -> dict:
 
     # Returns the default configuration (for use in generating new server configurations)
     with open("./data/serverconfig.json", "r") as stored_config:
         return json.load(stored_config)["default"]
 
 
-def load_configuration():
+def load_configuration() -> dict:
 
     # Returns the configuration stored on disk.
     with open("./data/serverconfig.json", "r") as stored_config:
         return json.load(stored_config)
 
 
-def save_configuration(config):
+def save_configuration(config) -> None:
     with open("./data/serverconfig.json", "w") as stored_config:
         # This writes the configuration with the changes made to the disk.
         json.dump(config, stored_config, indent=4)
