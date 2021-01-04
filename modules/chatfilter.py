@@ -44,6 +44,8 @@ def usage_embed():
 
 class ChatFilterModule(commands.Cog):
 
+    # TODO: Add ability to bypass the default banned word list
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -53,6 +55,17 @@ class ChatFilterModule(commands.Cog):
         # Loads the chat filter configuration of the server the message was sent
 
         print("'Chat Filter' module loaded.")
+
+    def exempt_check(self, message, guild_config) -> bool:
+
+        if message.author.id in guild_config["whitelisted-members"]:
+            return True
+        elif message.channel in guild_config["whitelisted-channels"]:
+            return True
+        elif message.author.id == self.bot.user.id:
+            return True
+        else:
+            return False
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -70,11 +83,12 @@ class ChatFilterModule(commands.Cog):
             }
             save_configuration(config)
 
-        # If the message isn't sent by the bot or in a whitelisted channel...
-        if message.author != self.bot.user or message.channel not in guild_config["whitelisted-channels"]:
+        # If the message isn't sent by the bot, in a whitelisted channel, or sent by a whitelisted user...
+        if not self.exempt_check(message, guild_config):
 
             if message.author.guild_permissions.administrator and "-filter add" in message.content:
                 pass
+
             else:
 
                 # ...check for profanity.
@@ -85,7 +99,6 @@ class ChatFilterModule(commands.Cog):
 
                     # If the server has a log channel set, build an embed and send it.
                     if guild_config["log-channel"]:
-
                         file = discord.File("./assets/vgcdisgusting.png")
                         embed = discord.Embed(title="I have deleted a message from a channel.",
                                               description=f"Offender: {message.author.name}\n"
@@ -109,7 +122,6 @@ class ChatFilterModule(commands.Cog):
 
                             # If the server has a log channel set, build an embed and send it.
                             if guild_config["log-channel"]:
-
                                 file = discord.File("./assets/vgcdisgusting.png")
                                 embed = discord.Embed(title="I have deleted a message from a channel.",
                                                       description=f"Offender: {message.author.name}\n"
@@ -207,6 +219,30 @@ class ChatFilterModule(commands.Cog):
                     embed.set_thumbnail(url="attachment://vgcsad.png")
                     return await ctx.send(file=file, embed=embed)
 
+            elif intent.lower() == "list":
+
+                if guild_config["custom-words"]:
+                    embed = discord.Embed(title="Custom Words",
+                                          description="These words are filtered from chat within this server.",
+                                          color=0xff0000)
+
+                    string_of_words = str()
+
+                    for word in guild_config["custom-words"]:
+                        string_of_words += f"{word}\n"
+
+                    embed.add_field(name=f"There are {len(guild_config['custom-words'])} in this list:",
+                                    value=f"{string_of_words}")
+
+                    return await ctx.send(embed=embed)
+                else:
+                    embed = discord.Embed(title="Custom Words",
+                                          description="These words are filtered from chat within this server.\n\u200B",
+                                          color=0xff0000)
+                    embed.add_field(name="There are no words in this list!",
+                                    value="Use *filter add* to add words.")
+                    return await ctx.send(embed=embed)
+
             else:
                 message = usage_embed()
                 return await ctx.send(file=message[0], embed=message[1])
@@ -214,6 +250,66 @@ class ChatFilterModule(commands.Cog):
         else:
             message = usage_embed()
             return await ctx.send(file=message[0], embed=message[1])
+
+    @commands.command()
+    async def whitelist(self, ctx, intent=None, element=None) -> None:
+
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
+
+        if intent:
+
+            if intent.lower() == "add":
+
+                if element:
+
+                    if element.lower() == "channel":
+                        channels = ctx.message.channel_mentions
+
+                        if channels:
+                            guild_config["whitelisted-channels"].append(channels[0].id)
+                            save_configuration(config)
+                            await ctx.message.add_reaction("✅")
+                            return
+
+                    elif element.lower() == "member":
+                        mentions = ctx.message.mentions
+
+                        if mentions:
+                            guild_config["whitelisted-channels"].remove(mentions[0].id)
+                            save_configuration(config)
+                            await ctx.message.add_reaction("✅")
+                            return
+
+            elif intent.lower() == "remove":
+
+                if element:
+
+                    if element.lower() == "channel":
+                        channels = ctx.message.channel_mentions
+
+                        if channels and channels[0].id in guild_config["whitelisted-channels"]:
+                            guild_config["whitelisted-channels"].remove(channels[0].id)
+                            save_configuration(config)
+                            await ctx.message.add_reaction("✅")
+                            return
+
+                    elif element.lower() == "member":
+                        mentions = ctx.message.mentions
+
+                        if mentions and mentions[0].id in guild_config["whitelisted-members"]:
+                            guild_config["whitelisted-channels"].remove(mentions[0].id)
+                            save_configuration(config)
+                            await ctx.message.add_reaction("✅")
+                            return
+                        pass
+
+                pass
+
+        else:
+
+            # TODO: usage embed
+            pass
 
 
 def setup(bot):
