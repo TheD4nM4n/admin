@@ -140,5 +140,5 @@ async def disable(ctx, module_name):
         await ctx.message.add_reaction("❌")
         await ctx.send("Sorry, that module either doesn't exist, or is already disabled.")
 
-
-bot.run(load_token())
+if __name__ == "__main__":
+    bot.run(load_token())
