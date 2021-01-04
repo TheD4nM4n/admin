@@ -11,7 +11,8 @@
             "enabled": true,
             "log-channel": null,
             "custom-words": [],
-            "whitelisted-channels": []
+            "whitelisted-channels": [],
+            "whitelisted-members": []
         },
         "mute": {
             "enabled": true,
@@ -30,7 +31,8 @@
             "enabled": false,
             "log-channel": null,
             "custom-words": [],
-            "whitelisted-channels": []
+            "whitelisted-channels": [],
+            "whitelisted-members": []
         }
     },
     "763461951640567882": {
@@ -44,8 +46,14 @@
         "chat-filter": {
             "enabled": true,
             "log-channel": 794283673301286922,
-            "custom-words": [],
-            "whitelisted-channels": []
+            "custom-words": [
+                "test"
+            ],
+            "whitelisted-channels": [],
+            "whitelisted-members": [
+                94855819769688064,
+                508786900174110724
+            ]
         },
         "mute": {
             "enabled": true,
@@ -64,7 +72,8 @@
             "enabled": true,
             "log-channel": 794310713509150762,
             "custom-words": [],
-            "whitelisted-channels": []
+            "whitelisted-channels": [],
+            "whitelisted-members": []
         },
         "mute": {
             "enabled": true,
