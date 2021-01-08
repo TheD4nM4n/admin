@@ -17,7 +17,7 @@ def save_configuration(config):
         stored_config.truncate()
 
 
-def usage_embed():
+def usage_embed() -> tuple:
     file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
     embed = discord.Embed(title="filter",
                           description="Provides helpful settings for your chat filter.",
@@ -50,10 +50,7 @@ class ChatFilterModule(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_ready(self):
-        config = load_configuration()
-        # Loads the chat filter configuration of the server the message was sent
-
+    async def on_ready(self) -> None:
         print("'Chat Filter' module loaded.")
 
     def exempt_check(self, message, guild_config) -> bool:
@@ -68,7 +65,7 @@ class ChatFilterModule(commands.Cog):
             return False
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message) -> discord.Message:
         config = load_configuration()
         # Loads the chat filter configuration of the server the message was sent
         try:
@@ -78,41 +75,22 @@ class ChatFilterModule(commands.Cog):
             guild_config["chat-filter"] = {
                 "enabled": True,
                 "log-channel": None,
+                "use-default-list": True,
                 "custom-words": [],
-                "whitelisted-channels": []
+                "whitelisted-channels": [],
             }
             save_configuration(config)
 
-        # If the message isn't sent by the bot, in a whitelisted channel, or sent by a whitelisted user...
-        if not self.exempt_check(message, guild_config):
+        if guild_config["enabled"]:
 
-            if message.author.guild_permissions.administrator and "-filter add" in message.content:
-                pass
+            # If the message isn't sent by the bot, in a whitelisted channel, or sent by a whitelisted user...
+            if not self.exempt_check(message, guild_config):
 
-            else:
-
-                # ...check for profanity.
-                if profanity.contains_profanity(message.content):
-
-                    # Delete message
-                    await message.delete()
-
-                    # If the server has a log channel set, build an embed and send it.
-                    if guild_config["log-channel"]:
-                        file = discord.File("./assets/vgcdisgusting.png")
-                        embed = discord.Embed(title="I have deleted a message from a channel.",
-                                              description=f"Offender: {message.author.name}\n"
-                                                          f"Channel: {message.channel}\n",
-                                              color=0xff0000)
-                        embed.add_field(name="Message content:", value=message.content)
-                        embed.set_thumbnail(url="attachment://vgcdisgusting.png")
-                        log_channel = self.bot.get_channel(guild_config["log-channel"])
-
-                        return await log_channel.send(file=file, embed=embed)
+                if message.author.guild_permissions.administrator and "-filter add" in message.content:
+                    pass
 
                 else:
-
-                    # If it can't find a swear word, it will look through the list of custom words
+                    # Checks if message contains a custom blacklisted word
                     for word in guild_config["custom-words"]:
 
                         if word in message.content.lower():
@@ -131,6 +109,27 @@ class ChatFilterModule(commands.Cog):
                                 embed.set_thumbnail(url="attachment://vgcdisgusting.png")
 
                                 log_channel = self.bot.get_channel(guild_config["log-channel"])
+                                return await log_channel.send(file=file, embed=embed)
+
+                    # ...check for profanity.
+                    if guild_config["use-default-list"]:
+
+                        if profanity.contains_profanity(message.content):
+
+                            # Delete message
+                            await message.delete()
+
+                            # If the server has a log channel set, build an embed and send it.
+                            if guild_config["log-channel"]:
+                                file = discord.File("./assets/vgcdisgusting.png")
+                                embed = discord.Embed(title="I have deleted a message from a channel.",
+                                                      description=f"Offender: {message.author.name}\n"
+                                                                  f"Channel: {message.channel}\n",
+                                                      color=0xff0000)
+                                embed.add_field(name="Message content:", value=message.content)
+                                embed.set_thumbnail(url="attachment://vgcdisgusting.png")
+                                log_channel = self.bot.get_channel(guild_config["log-channel"])
+
                                 return await log_channel.send(file=file, embed=embed)
 
     @commands.command()
@@ -302,9 +301,23 @@ class ChatFilterModule(commands.Cog):
                             save_configuration(config)
                             await ctx.message.add_reaction("✅")
                             return
-                        pass
 
-                pass
+            elif intent.lower() == "default":
+
+                if element:
+
+                    if element.lower() == "enable":
+
+                        guild_config["use-default-list"] = True
+                        save_configuration(config)
+                        await ctx.message.add_reaction("✅")
+                        return
+
+                    elif element.lower() == "disable":
+                        guild_config["use-default-list"] = False
+                        save_configuration(config)
+                        await ctx.message.add_reaction("✅")
+                        return
 
         else:
 
