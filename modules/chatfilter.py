@@ -251,6 +251,7 @@ class ChatFilterModule(commands.Cog):
             return await ctx.send(file=message[0], embed=message[1])
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, intent=None, element=None) -> None:
 
         config = load_configuration()
