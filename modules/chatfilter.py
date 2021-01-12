@@ -44,8 +44,6 @@ def usage_embed() -> tuple:
 
 class ChatFilterModule(commands.Cog):
 
-    # TODO: Add ability to bypass the default banned word list
-
     def __init__(self, bot):
         self.bot = bot
 
