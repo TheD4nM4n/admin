@@ -48,7 +48,15 @@
         "chat-filter": {
             "enabled": true,
             "log-channel": 794283673301286922,
-            "custom-words": [],
+            "custom-words": [
+                "fuck",
+                "nigger",
+                "nigga",
+                "faggot",
+                "fag",
+                "negro",
+                "coon"
+            ],
             "use-default-list": false,
             "whitelisted-channels": [
                 794286651928346634
