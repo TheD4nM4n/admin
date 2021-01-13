@@ -1,5 +1,6 @@
 {
     "default": {
+        "name": null,
         "greetings": {
             "enabled": true,
             "channel": null
@@ -20,24 +21,8 @@
             "muted-members": []
         }
     },
-    "735281894161121360": {
-        "greetings": {
-            "enabled": true,
-            "channel": 735281894161121365
-        },
-        "reaction-roles": {
-            "enabled": true
-        },
-        "chat-filter": {
-            "enabled": false,
-            "log-channel": null,
-            "use-default-list": true,
-            "custom-words": [],
-            "whitelisted-channels": [],
-            "whitelisted-members": []
-        }
-    },
     "763461951640567882": {
+        "name": "Everyone Games PA\u2122",
         "greetings": {
             "enabled": true,
             "channel": 795717767311392788
@@ -47,20 +32,10 @@
         },
         "chat-filter": {
             "enabled": true,
-            "log-channel": 794283673301286922,
-            "custom-words": [
-                "fuck",
-                "nigger",
-                "nigga",
-                "faggot",
-                "fag",
-                "negro",
-                "coon"
-            ],
-            "use-default-list": false,
-            "whitelisted-channels": [
-                794286651928346634
-            ],
+            "log-channel": null,
+            "use-default-list": true,
+            "custom-words": [],
+            "whitelisted-channels": [],
             "whitelisted-members": []
         },
         "mute": {
@@ -68,19 +43,45 @@
             "muted-members": []
         }
     },
-    "794309405864099880": {
+    "735281894161121360": {
+        "name": "Admin Official Server",
         "greetings": {
             "enabled": true,
-            "channel": 794309405864099883
+            "channel": 735281894161121365
+        },
+        "reaction-roles": {
+            "enabled": true,
+            "798778486415687681": {
+                "\u274c": 748378813049602098
+            }
+        },
+        "chat-filter": {
+            "enabled": true,
+            "log-channel": null,
+            "use-default-list": true,
+            "custom-words": [],
+            "whitelisted-channels": [],
+            "whitelisted-members": []
+        },
+        "mute": {
+            "enabled": true,
+            "muted-members": []
+        }
+    },
+    "501406927650291723": {
+        "name": "CMS VGC",
+        "greetings": {
+            "enabled": true,
+            "channel": 740457161850748939
         },
         "reaction-roles": {
             "enabled": true
         },
         "chat-filter": {
             "enabled": true,
-            "log-channel": 794310713509150762,
-            "custom-words": [],
+            "log-channel": null,
             "use-default-list": true,
+            "custom-words": [],
             "whitelisted-channels": [],
             "whitelisted-members": []
         },
