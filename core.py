@@ -26,7 +26,7 @@ def load_default_configuration() -> dict:
 def load_configuration() -> dict:
 
     # Returns the configuration stored on disk.
-    with open("./data/serverconfig.json", "r") as stored_config:
+    with open("./data/serverconfig.json", "r", encoding="utf-8") as stored_config:
         return json.load(stored_config)
 
 
@@ -43,6 +43,25 @@ for module in os.listdir('./modules'):
 
 
 @bot.event
+async def on_ready():
+    config = load_configuration()
+
+    for guild in bot.guilds:
+        if str(guild.id) not in config.keys():
+
+            # Loads the default config and modifies it to fit the server
+            default_config = load_default_configuration()
+            default_config["greetings"]["channel"] = guild.system_channel.id
+            default_config["name"] = guild.name
+
+            # Adds the server to the config, with the above configuration
+            config[f"{guild.id}"] = default_config
+
+    # Writes the new config to disk
+    save_configuration(config)
+
+
+@bot.event
 async def on_guild_join(guild):
 
     # Loads the serverconfig.json file and looks for the server in the json
@@ -52,6 +71,7 @@ async def on_guild_join(guild):
     if guild.id not in config.keys():
         default_config = load_default_configuration()
         default_config["greetings"]["channel"] = guild.system_channel.id
+        default_config["name"] = guild.name
 
         # Adds the server to the config, with the above configuration
         config[f"{guild.id}"] = default_config
