@@ -11,7 +11,8 @@ class StatisticsModule(commands.Cog):
         # Discord.py things
         self.bot = bot
 
-    @commands.command(aliases=["stats"])
+    @commands.command(aliases=["stats"], description="Provides brief statistics about the server.")
+    @commands.has_permissions(administrator=True)
     async def statistics(self, ctx) -> None:
 
         number_of_days = (datetime.today().date() - ctx.guild.created_at.date()).days
