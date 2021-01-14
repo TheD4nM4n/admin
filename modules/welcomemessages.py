@@ -53,7 +53,7 @@ class GreetingsModule(commands.Cog):
 
     @commands.command(description="Allows configuration of the greetings of new users in your server.")
     @commands.has_permissions(administrator=True)
-    async def greetings(self, ctx, intent=None, channel: discord.TextChannel = None):
+    async def greetings(self, ctx: commands.Context, intent=None, channel: discord.TextChannel = None):
 
         config = load_configuration()
         guild_config = config[f"{ctx.guild.id}"]["greetings"]

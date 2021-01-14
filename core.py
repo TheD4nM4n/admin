@@ -82,7 +82,7 @@ async def on_guild_join(guild):
 
 @bot.command(description="Reloads the specified module, or all of them if no module is specified.")
 @commands.has_permissions(administrator=True)
-async def reload(ctx, module_name=None):
+async def reload(ctx: commands.Context, module_name=None):
     if module_name is None:
 
         active_modules = [extension for extension in bot.extensions]
@@ -110,7 +110,7 @@ async def reload(ctx, module_name=None):
 
 @bot.command(description="Lists all modules.")
 @commands.has_permissions(administrator=True)
-async def modules(ctx):
+async def modules(ctx: commands.Context):
     active_modules = ''
     for bot_module in bot.extensions:
         active_modules += f"{bot_module[8:]}\n"
@@ -137,7 +137,7 @@ async def modules(ctx):
 
 @bot.command(description="Enables a module.")
 @commands.has_permissions(administrator=True)
-async def enable(ctx, module_name):
+async def enable(ctx: commands.Context, module_name):
     if f"modules.{module_name}" not in bot.extensions:
         if f"{module_name.lower()}.py" in os.listdir("./modules"):
             bot.load_extension(f"modules.{module_name.lower()}")
@@ -151,7 +151,7 @@ async def enable(ctx, module_name):
 
 @bot.command(description="Disables a module.")
 @commands.has_permissions(administrator=True)
-async def disable(ctx, module_name):
+async def disable(ctx: commands.Context, module_name):
     if f"modules.{module_name.lower()}" in bot.extensions:
         bot.remove_cog(module_name.lower())
         bot.unload_extension(f'modules.{module_name.lower()}')
@@ -162,7 +162,7 @@ async def disable(ctx, module_name):
 
 
 @bot.command(name="help", description="Displays all Admin commands.")
-async def help_command(ctx, arg=None):
+async def help_command(ctx: commands.Context, arg=None):
     file = File(fp="./assets/vgclove.png")
     if arg is None:
         embed = Embed(title="Help", description="Thank you for seeing what I can do!",

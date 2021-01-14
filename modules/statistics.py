@@ -13,7 +13,7 @@ class StatisticsModule(commands.Cog):
 
     @commands.command(aliases=["stats"], description="Provides brief statistics about the server.")
     @commands.has_permissions(administrator=True)
-    async def statistics(self, ctx) -> None:
+    async def statistics(self, ctx: commands.Context) -> None:
 
         number_of_days = (datetime.today().date() - ctx.guild.created_at.date()).days
         print(number_of_days)

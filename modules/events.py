@@ -12,7 +12,7 @@ class EventsModule(commands.Cog):
 
     @commands.command(description="A powerful set of tools for running giveaways.")
     @commands.has_permissions(administrator=True)
-    async def giveaway(self, ctx, intent=None, role: Role = None) -> None:
+    async def giveaway(self, ctx: commands.Context, intent=None, role: Role = None) -> None:
 
         if intent:
 

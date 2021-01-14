@@ -50,7 +50,7 @@ class InfoModule(commands.Cog):
         self.bot = bot
 
     @commands.command(description="Provides details on the specified game.")
-    async def game(self, ctx, *, arg=None):
+    async def game(self, ctx: commands.Context, *, arg=None):
 
         # Makes the bot look like it is typing.
         # Helpful for showing the bot isn't just broken.

@@ -43,10 +43,11 @@ class ReactionRolesModule(commands.Cog):
 
     @commands.command(description="Gives all users in the server the specified role.")
     @commands.has_permissions(administrator=True)
-    async def allrole(self, ctx, role: discord.Role = None):
+    async def allrole(self, ctx: commands.Context, role: discord.Role = None):
 
         if role:
 
+            await ctx.typing()
             number_of_roles_given = 0
             number_of_errors = 0
             for member in ctx.guild.members:

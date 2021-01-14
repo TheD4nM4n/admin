@@ -136,7 +136,7 @@ class ChatFilterModule(commands.Cog):
 
     @commands.command(description="Allows the configuration of the chat filter in this server.")
     @commands.has_permissions(administrator=True)
-    async def filter(self, ctx, intent=None, arg=None):
+    async def filter(self, ctx: commands.Context, intent=None, arg=None):
 
         # Gets copies of the full config file and the server-specific config
         config = load_configuration()
