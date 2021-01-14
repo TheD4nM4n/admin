@@ -32,7 +32,8 @@ class DevelopmentModule(commands.Cog):
         if str(message.author.id) in guild_config["muted-members"]:
             return await message.delete()
 
-    @commands.command()
+    @commands.command(description="Immediately deletes further messages from the user specified until disabled.")
+    @commands.has_permissions(administrator=True)
     async def mute(self, ctx, intent=None, member: discord.Member = None):
         config = load_configuration()
         guild_config = config[f"{ctx.guild.id}"]["mute"]
