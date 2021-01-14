@@ -63,7 +63,7 @@ class ChatFilterModule(commands.Cog):
             return False
 
     @commands.Cog.listener()
-    async def on_message(self, message) -> discord.Message:
+    async def on_message(self, message) -> None:
         config = load_configuration()
         # Loads the chat filter configuration of the server the message was sent
         try:
@@ -107,7 +107,10 @@ class ChatFilterModule(commands.Cog):
                                 embed.set_thumbnail(url="attachment://vgcdisgusting.png")
 
                                 log_channel = self.bot.get_channel(guild_config["log-channel"])
-                                return await log_channel.send(file=file, embed=embed)
+                                await log_channel.send(file=file, embed=embed)
+                                return
+
+                            return
 
                     # ...check for profanity.
                     if guild_config["use-default-list"]:
@@ -128,9 +131,10 @@ class ChatFilterModule(commands.Cog):
                                 embed.set_thumbnail(url="attachment://vgcdisgusting.png")
                                 log_channel = self.bot.get_channel(guild_config["log-channel"])
 
-                                return await log_channel.send(file=file, embed=embed)
+                                await log_channel.send(file=file, embed=embed)
+                                return
 
-    @commands.command()
+    @commands.command(description="Allows the configuration of the chat filter in this server.")
     @commands.has_permissions(administrator=True)
     async def filter(self, ctx, intent=None, arg=None):
 
@@ -240,6 +244,23 @@ class ChatFilterModule(commands.Cog):
                                     value="Use *filter add* to add words.")
                     return await ctx.send(embed=embed)
 
+            elif intent.lower() == "default":
+
+                if arg:
+
+                    if arg.lower() == "enable":
+
+                        guild_config["use-default-list"] = True
+                        save_configuration(config)
+                        await ctx.message.add_reaction("✅")
+                        return
+
+                    elif arg.lower() == "disable":
+                        guild_config["use-default-list"] = False
+                        save_configuration(config)
+                        await ctx.message.add_reaction("✅")
+                        return
+
             else:
                 message = usage_embed()
                 return await ctx.send(file=message[0], embed=message[1])
@@ -248,7 +269,7 @@ class ChatFilterModule(commands.Cog):
             message = usage_embed()
             return await ctx.send(file=message[0], embed=message[1])
 
-    @commands.command()
+    @commands.command(description="Add/remove users or channels to the server whitelist.")
     @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, intent=None, element=None) -> None:
 
@@ -300,23 +321,6 @@ class ChatFilterModule(commands.Cog):
                             save_configuration(config)
                             await ctx.message.add_reaction("✅")
                             return
-
-            elif intent.lower() == "default":
-
-                if element:
-
-                    if element.lower() == "enable":
-
-                        guild_config["use-default-list"] = True
-                        save_configuration(config)
-                        await ctx.message.add_reaction("✅")
-                        return
-
-                    elif element.lower() == "disable":
-                        guild_config["use-default-list"] = False
-                        save_configuration(config)
-                        await ctx.message.add_reaction("✅")
-                        return
 
         else:
 
