@@ -1,7 +1,7 @@
 import os
 import json
 
-from discord import Embed
+from discord import Embed, File
 from discord.ext import commands
 from discord import Intents
 
@@ -80,7 +80,7 @@ async def on_guild_join(guild):
         save_configuration(config)
 
 
-@bot.command()
+@bot.command(description="Reloads the specified module, or all of them if no module is specified.")
 @commands.has_permissions(administrator=True)
 async def reload(ctx, module_name=None):
     if module_name is None:
@@ -108,7 +108,7 @@ async def reload(ctx, module_name=None):
         await ctx.message.add_reaction("✅")
 
 
-@bot.command()
+@bot.command(description="Lists all modules.")
 @commands.has_permissions(administrator=True)
 async def modules(ctx):
     active_modules = ''
@@ -135,7 +135,7 @@ async def modules(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command()
+@bot.command(description="Enables a module.")
 @commands.has_permissions(administrator=True)
 async def enable(ctx, module_name):
     if f"modules.{module_name}" not in bot.extensions:
@@ -149,7 +149,7 @@ async def enable(ctx, module_name):
         return await ctx.send(f"That module is already loaded!")
 
 
-@bot.command()
+@bot.command(description="Disables a module.")
 @commands.has_permissions(administrator=True)
 async def disable(ctx, module_name):
     if f"modules.{module_name.lower()}" in bot.extensions:
@@ -159,6 +159,42 @@ async def disable(ctx, module_name):
     else:
         await ctx.message.add_reaction("❌")
         await ctx.send("Sorry, that module either doesn't exist, or is already disabled.")
+
+
+@bot.command(name="help", description="Displays all Admin commands.")
+async def help_command(ctx, arg=None):
+    file = File(fp="./assets/vgclove.png")
+    if arg is None:
+        embed = Embed(title="Help", description="Thank you for seeing what I can do!",
+                      color=0xff0000)
+        embed.set_thumbnail(url="attachment://vgclove.png")
+        for command in bot.commands:
+            command_data = commands.Bot.get_command(bot, command.name)
+            if command_data.checks:
+                pass
+            else:
+                if command_data.description:
+                    embed.add_field(name=command_data.name, value=command_data.description, inline=False)
+                else:
+                    embed.add_field(name=command_data.name, value="placeholder", inline=False)
+        embed.set_footer(text="For moderator commands, execute the command '-help moderator'.")
+    elif arg == "moderator":
+        embed = Embed(title="Help", description="Thank you for seeing what I can do (for administrators)!",
+                      color=0xff0000)
+        embed.set_thumbnail(url="attachment://vgclove.png")
+        for command in bot.commands:
+            if ctx.author.guild_permissions.administrator:
+                command_data = commands.Bot.get_command(bot, command.name)
+                if not command_data.checks:
+                    pass
+                else:
+                    if command_data.description:
+                        embed.add_field(name=command_data.name, value=command_data.description, inline=False)
+                    else:
+                        embed.add_field(name=command_data.name, value="placeholder", inline=False)
+    else:
+        return
+    await ctx.send(file=file, embed=embed)
 
 if __name__ == "__main__":
     bot.run(load_token())
