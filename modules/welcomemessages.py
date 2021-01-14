@@ -51,7 +51,7 @@ class GreetingsModule(commands.Cog):
             message = choice(self.messages).replace("{member}", member.mention).replace("{guild}", member.guild.name)
             await greeting_channel.send(message)
 
-    @commands.command()
+    @commands.command(description="Allows configuration of the greetings of new users in your server.")
     @commands.has_permissions(administrator=True)
     async def greetings(self, ctx, intent=None, channel: discord.TextChannel = None):
 
