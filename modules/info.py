@@ -49,7 +49,7 @@ class InfoModule(commands.Cog):
         # Discord.py things
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description="Provides details on the specified game.")
     async def game(self, ctx, *, arg=None):
 
         # Makes the bot look like it is typing.
