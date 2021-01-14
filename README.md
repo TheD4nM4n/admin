@@ -21,6 +21,15 @@ With a focus on education, Admin includes powerful moderation tools to keep your
     - Welcome messages automatically welcome people to your server
     - Make your own custom messages
     - Easy way to change the welcome channel
+- Automatic moderation
+    - Immediate deletion of messages with vulgar language
+    - Add custom words to a blacklist
+    - Utilize a default word list for easy moderation
+- Event management
+    - Commands to draw winners for giveaways
+- Modular nature
+    - Based off of discord.py's Cog system
+    - Easy assignment of custom modules
 
 ### Planned features
 
@@ -29,7 +38,6 @@ With a focus on education, Admin includes powerful moderation tools to keep your
     - Create custom links between emotes and roles
     - Use messages sent by other users as the base message
 - Automatic moderation
-    - Immediate deletion of messages with vulgar language
     - Ticket system for reporting conduct
     - Automatic kicks/bans for repeat offenders
 - Polls
