@@ -21,33 +21,23 @@ class DevelopmentModule(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
+    @commands.group(description="Makes items.")
+    async def make(self, ctx):
+        pass
 
-        # Loads mute configuration
-        config = load_configuration()
-        guild_config = config[f"{message.guild.id}"]["mute"]
-
-        # Checks if member is muted and deletes message if so
-        if str(message.author.id) in guild_config["muted-members"]:
-            return await message.delete()
-
-    @commands.command(description="Immediately deletes further messages from the user specified until disabled.")
+    @make.command(description="Makes an embed.")
     @commands.has_permissions(administrator=True)
-    async def mute(self, ctx: commands.Context, intent=None, member: discord.Member = None):
-        config = load_configuration()
-        guild_config = config[f"{ctx.guild.id}"]["mute"]
+    async def embed(self, ctx: commands.Context, *, content: str):
 
-        if intent:
-            if intent.lower() == "add":
-                guild_config["muted-members"].append(f"{member.id}")
-                save_configuration(config)
-                return await ctx.message.add_reaction("✅")
-            elif intent.lower() == "remove":
-                if str(member.id) in guild_config["muted-members"]:
-                    guild_config["muted-members"].remove(str(member.id))
-                    save_configuration(config)
-                    return await ctx.message.add_reaction("✅")
+        if content:
+
+            split_message = content.split("|")
+
+            embed = discord.Embed(title=split_message[0],
+                                  description=split_message[1],
+                                  color=0xff0000)
+
+            await ctx.send(embed=embed)
 
 
 def setup(bot):

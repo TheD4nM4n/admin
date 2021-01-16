@@ -1,6 +1,7 @@
 import discord
 import json
 
+from re import sub
 from discord.ext import commands
 from better_profanity import profanity
 
@@ -46,6 +47,7 @@ class ChatFilterModule(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        profanity.load_censor_words_from_file("./data/default_word_list.txt")
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
@@ -62,8 +64,8 @@ class ChatFilterModule(commands.Cog):
         else:
             return False
 
-    @commands.Cog.listener()
-    async def on_message(self, message) -> None:
+    @commands.Cog.listener("on_message")
+    async def chat_filter(self, message: discord.Message) -> None:
         config = load_configuration()
         # Loads the chat filter configuration of the server the message was sent
         try:
@@ -88,10 +90,13 @@ class ChatFilterModule(commands.Cog):
                     pass
 
                 else:
+
+                    text_without_formatting = sub("[^\\w-]+", " ", message.content)
+
                     # Checks if message contains a custom blacklisted word
                     for word in guild_config["custom-words"]:
 
-                        if word in message.content.lower():
+                        if word in text_without_formatting.lower():
 
                             # Delete message
                             await message.delete()
@@ -103,7 +108,7 @@ class ChatFilterModule(commands.Cog):
                                                       description=f"Offender: {message.author.name}\n"
                                                                   f"Channel: {message.channel}\n",
                                                       color=0xff0000)
-                                embed.add_field(name="Message content:", value=message.content)
+                                embed.add_field(name="Message content:", value=text_without_formatting)
                                 embed.set_thumbnail(url="attachment://vgcdisgusting.png")
 
                                 log_channel = self.bot.get_channel(guild_config["log-channel"])
@@ -115,7 +120,7 @@ class ChatFilterModule(commands.Cog):
                     # ...check for profanity.
                     if guild_config["use-default-list"]:
 
-                        if profanity.contains_profanity(message.content):
+                        if profanity.contains_profanity(text_without_formatting):
 
                             # Delete message
                             await message.delete()
@@ -128,6 +133,8 @@ class ChatFilterModule(commands.Cog):
                                                                   f"Channel: {message.channel}\n",
                                                       color=0xff0000)
                                 embed.add_field(name="Message content:", value=message.content)
+                                embed.add_field(name="Filtered content:",
+                                                value=profanity.censor(text_without_formatting, "#"))
                                 embed.set_thumbnail(url="attachment://vgcdisgusting.png")
                                 log_channel = self.bot.get_channel(guild_config["log-channel"])
 

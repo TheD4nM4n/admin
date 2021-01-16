@@ -31,7 +31,7 @@ class GreetingsModule(commands.Cog):
     async def on_ready(self):
         print("'Greetings' module loaded.")
 
-    @commands.Cog.listener()
+    @commands.Cog.listener("on_member_join")
     async def on_member_join(self, member):
 
         # Gets the configuration for the server that the user joined

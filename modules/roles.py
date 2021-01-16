@@ -26,8 +26,8 @@ class ReactionRolesModule(commands.Cog):
     async def on_ready(self):
         print("'Reaction Roles' module loaded.")
 
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, reaction):
+    @commands.Cog.listener("on_raw_reaction_add")
+    async def reaction_role_listener(self, reaction):
 
         guild_reaction_roles = load_configuration()[f"{reaction.guild_id}"]["reaction-roles"]
         if str(reaction.message_id) in guild_reaction_roles.keys():
@@ -47,7 +47,7 @@ class ReactionRolesModule(commands.Cog):
 
         if role:
 
-            await ctx.typing()
+            await ctx.trigger_typing()
             number_of_roles_given = 0
             number_of_errors = 0
             for member in ctx.guild.members:
@@ -64,6 +64,30 @@ class ReactionRolesModule(commands.Cog):
                                   color=0xff0000)
             embed.set_thumbnail(url="attachment://vgcrollsafe.png")
             await ctx.send(file=file, embed=embed)
+
+    # @commands.command(description="Links a message sent with roles.")
+    # @commands.has_permissions(administrator=True)
+    # async def link(self, ctx: commands.Context):
+    #     pass
+
+    @commands.command(description="Gives the role provided (if the role is available as a self serve).")
+    async def give(self, ctx: commands.Context, role: discord.Role=None):
+
+        self_serve_roles = load_configuration()[f"{ctx.guild.id}"]["self-serve"]
+
+        if role:
+
+            if role.id in self_serve_roles:
+                await ctx.author.add_roles(role)
+
+    @commands.Cog.listener("on_member_join")
+    async def give_attendee(self, member):
+
+        attendee = discord.utils.get(member.guild.roles, id=794238883679567922)
+
+        if "Everyone Games PA" in member.guild.name:
+
+            await member.give_roles(attendee)
 
 
 def setup(bot):
