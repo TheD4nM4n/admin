@@ -41,53 +41,67 @@ class ReactionRolesModule(commands.Cog):
 
                 await reaction.member.add_roles(role)
 
-    @commands.command(description="Gives all users in the server the specified role.")
+    @commands.group(invoke_without_command=True)
     @commands.has_permissions(administrator=True)
-    async def allrole(self, ctx: commands.Context, role: discord.Role = None):
+    async def role(self, ctx: commands.Context):
+        pass
+
+    @role.command(name="all")
+    @commands.has_permissions(administrator=True)
+    async def role_all(self, ctx, role: discord.Role):
+        print("role all")
 
         if role:
 
             await ctx.trigger_typing()
+
             number_of_roles_given = 0
             number_of_errors = 0
+
             for member in ctx.guild.members:
                 if member.id != self.bot.user.id:
-                    try:
-                        await member.add_roles(role)
-                        number_of_roles_given += 1
-                    except:
-                        number_of_errors += 1
+                    await member.add_roles(role)
+                    number_of_roles_given += 1
+
             file = discord.File(fp="./assets/vgcrollsafe.png")
             embed = discord.Embed(title="Mass role assignment done!",
-                                  description=f"Added the role {role.mention} to {number_of_roles_given} members, with "
-                                              f"{number_of_errors} errors.",
+                                  description=f"Added the role {role.mention} to {number_of_roles_given}"
+                                              f"members, with {number_of_errors} errors.",
                                   color=0xff0000)
             embed.set_thumbnail(url="attachment://vgcrollsafe.png")
+
             await ctx.send(file=file, embed=embed)
+
+    @role_all.error
+    async def all_role_error(self, ctx, error):
+
+        if isinstance(error, commands.RoleNotFound):
+            await ctx.send("That doesn't seem to be a role here. Try again with a new role!")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("Please include a role to give.")
 
     # @commands.command(description="Links a message sent with roles.")
     # @commands.has_permissions(administrator=True)
     # async def link(self, ctx: commands.Context):
     #     pass
 
-    @commands.command(description="Gives the role provided (if the role is available as a self serve).")
-    async def give(self, ctx: commands.Context, role: discord.Role=None):
+    @role.command(description="Gives the role provided (if the role is available as a self serve).",
+                  help="test")
+    async def give(self, ctx: commands.Context, role: discord.Role):
 
         self_serve_roles = load_configuration()[f"{ctx.guild.id}"]["self-serve"]
 
-        if role:
+        if role.id in self_serve_roles:
+            await ctx.author.add_roles(role)
 
-            if role.id in self_serve_roles:
-                await ctx.author.add_roles(role)
+    @give.error
+    @role_all.error
+    async def general_role_error(self, ctx, error):
 
-    @commands.Cog.listener("on_member_join")
-    async def give_attendee(self, member):
-
-        attendee = discord.utils.get(member.guild.roles, id=794238883679567922)
-
-        if "Everyone Games PA" in member.guild.name:
-
-            await member.give_roles(attendee)
+        if isinstance(error, commands.RoleNotFound):
+            await ctx.send("That doesn't seem to be a role here. Try again with a new role!")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("Please include a role to give.")
 
 
 def setup(bot):
