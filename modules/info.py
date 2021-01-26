@@ -2,6 +2,7 @@ from discord import Embed, File
 from discord.ext import commands
 from rawgpy import RAWG
 from html import unescape
+from Pymoe import Anilist
 
 import json
 import re
@@ -14,6 +15,17 @@ def get_key(application):
 
 
 rawg = RAWG(get_key("rawg-key"))
+db = Anilist()
+
+
+def beautify_for_description(raw_html):
+    text_without_br = raw_html.replace("<br>", "")
+    text_with_italics = text_without_br.replace("<i>", "*").replace("</i>", "*")
+    for_removal = re.compile('<.*?>')
+    cleaned_text = re.sub(for_removal, '', text_with_italics)
+    first_paragraph = cleaned_text.split("\n")[0]
+    final_text = first_paragraph[:375] + (first_paragraph[375:] and '...')
+    return final_text
 
 
 def clean_text(raw_html):
@@ -91,6 +103,54 @@ class InfoModule(commands.Cog):
 
         # Sending da embed
         await ctx.send(file=file, embed=embed)
+
+    @commands.command(name="anime",
+                      description="Searches anime based on what you entered")
+    async def anime_command(self, ctx, *, query: str = None):
+
+        # Retrieves a search result from Anilist, then pulls more information from the 1st result
+        results = db.search.anime(f"{query}")
+        anime = db.get.anime(results['data']['Page']['media'][0]['id'])['data']['Media']
+
+        # Beautifies description for sending to Discord
+        anime_description = beautify_for_description(anime['description'])
+
+        # Constructs embed for sending
+        embed = Embed(title=f"{anime['title']['romaji']}",
+                      description=f"English: {anime['title']['english']}",
+                      color=0xff0000)
+        embed.set_thumbnail(url=anime['coverImage']['large'])
+        embed.add_field(name="Description",
+                        value=f"{anime_description}",
+                        inline=False)
+        embed.add_field(name="Average Score",
+                        value=f"{anime['averageScore']}")
+        embed.add_field(name="Genre",
+                        value=f"{anime['genres'][0]}")
+
+        # Sends the embed
+        await ctx.send(embed=embed)
+
+    @commands.command(name="manga",
+                      description="Searches manga based on what you entered")
+    async def manga_command(self, ctx, *, query: str = None):
+        results = db.search.manga(f"{query}")
+        manga = db.get.manga(results['data']['Page']['media'][0]['id'])['data']['Media']
+        manga_description = beautify_for_description(manga['description'])
+
+        embed = Embed(title=f"{manga['title']['romaji']}",
+                      description=f"English: {manga['title']['english']}",
+                      color=0xff0000)
+        embed.set_thumbnail(url=manga['coverImage']['large'])
+        embed.add_field(name="Description",
+                        value=f"{manga_description}",
+                        inline=False)
+        embed.add_field(name="Average Score",
+                        value=f"{manga['averageScore']}")
+        embed.add_field(name="Genre",
+                        value=f"{manga['genres'][0]}")
+
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
