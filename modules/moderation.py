@@ -16,6 +16,10 @@ def save_configuration(config) -> None:
         stored_config.truncate()
 
 
+class MemberAlreadyAssigned(Exception):
+    pass
+
+
 class ModerationModule(commands.Cog):
 
     def __init__(self, bot):
@@ -43,7 +47,8 @@ class ModerationModule(commands.Cog):
 
         await ctx.send(f"Deleted {len(messages)} messages.")
 
-    @commands.command(description="Immediately deletes further messages from the user specified until disabled.")
+    @commands.group(description="Immediately deletes further messages from the user specified until disabled.",
+                    invoke_without_command=True)
     @commands.has_permissions(administrator=True)
     async def mute(self, ctx: commands.Context, intent=None, member: discord.Member = None):
         config = load_configuration()
@@ -54,11 +59,40 @@ class ModerationModule(commands.Cog):
                 guild_config["muted-members"].append(f"{member.id}")
                 save_configuration(config)
                 return await ctx.message.add_reaction("✅")
-            elif intent.lower() == "remove":
-                if str(member.id) in guild_config["muted-members"]:
-                    guild_config["muted-members"].remove(str(member.id))
-                    save_configuration(config)
-                    return await ctx.message.add_reaction("✅")
+
+    @mute.command(name="add")
+    async def mute_add(self, ctx: commands.Context, member: discord.Member):
+
+        # Loads configuration and also ties an easier-to-use pointer to the mute section
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["mute"]
+
+        if member.id in guild_config["muted-members"]:
+            raise MemberAlreadyAssigned("That member is already a part of the list.")
+        # Adds the member to the mute list, and saves the list to disk
+        guild_config["muted-members"].append(member.id)
+        save_configuration(config)
+        return await ctx.message.add_reaction("✅")
+
+    @mute.command(name="remove")
+    async def mute_remove(self, ctx: commands.Context, member: discord.Member):
+
+        # Loads configuration and also ties an easier-to-use pointer to the mute section
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["mute"]
+
+        if str(member.id) in guild_config["muted-members"]:
+            guild_config["muted-members"].remove(member.id)
+            save_configuration(config)
+            return await ctx.message.add_reaction("✅")
+
+    @mute_add.error
+    @mute_remove.error
+    async def mute_error(self, ctx, error):
+        print(error)
+        if isinstance(error, commands.CommandInvokeError):
+            if isinstance(error.original, MemberAlreadyAssigned):
+                await ctx.send("That member is already muted. Did you mean to remove them?")
 
 
 def setup(bot):
