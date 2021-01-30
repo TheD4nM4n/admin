@@ -1,7 +1,7 @@
 import os
 import json
 
-from discord import Embed, File, Guild
+from discord import Embed, File, Guild, Activity, ActivityType
 from discord.ext import commands
 from discord import Intents
 
@@ -38,7 +38,8 @@ class AdminBot(commands.Bot):
 
     def __init__(self, **kwargs):
         super().__init__(command_prefix=kwargs['command_prefix'],
-                         intents=kwargs['intents'])
+                         intents=kwargs['intents'],
+                         activity=Activity(type=ActivityType.listening, name="-help"))
 
         for module in os.listdir('./modules'):
             if module.endswith('.py'):
