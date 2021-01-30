@@ -16,6 +16,9 @@ def save_configuration(config) -> None:
         json.dump(config, stored_config, indent=4)
         stored_config.truncate()
 
+class RoleNotAllowed(commands.CommandError):
+    pass
+
 
 class ReactionRolesModule(commands.Cog):
 
@@ -82,23 +85,53 @@ class ReactionRolesModule(commands.Cog):
     # async def link(self, ctx: commands.Context):
     #     pass
 
-    @role.command(description="Gives the role provided (if the role is available as a self serve).",
-                  help="test")
+    @role.group(description="Gives the role provided (if the role is available as a self serve).",
+                invoke_without_command=True)
     async def give(self, ctx: commands.Context, role: discord.Role):
 
+        # Loads the list of roles allowed to be self-served
         self_serve_roles = load_configuration()[f"{ctx.guild.id}"]["self-serve"]
 
+        # Gives the
         if role.id in self_serve_roles:
             await ctx.author.add_roles(role)
+            await ctx.message.add_reaction("✅")
+        else:
+            raise RoleNotAllowed("The role specified is not in the self-serve list.")
+
+
+    @give.command()
+    async def list(self, ctx: commands.Context):
+
+        # Loads the list of roles allowed to be self-served
+        self_serve_roles = load_configuration()[f"{ctx.guild.id}"]["self-serve"]
+
+        string_of_roles = str()
+        if self_serve_roles:
+            for role_id in self_serve_roles:
+                string_of_roles += ctx.guild.get_role(role_id).mention + "\n"
+            embed = discord.Embed(title="Self-Serve List",
+                                  description=string_of_roles,
+                                  color=0xff0000)
+            embed.add_field(name="To get any of these roles, use the command below:",
+                            value="*role give @role*")
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("It seems there are no roles for self-serve in this server. Contact a server admin if you "
+                           "think this is an issue. Sorry for the inconvenience!")
 
     @give.error
     @role_all.error
     async def general_role_error(self, ctx, error):
-
+        print(error)
         if isinstance(error, commands.RoleNotFound):
             await ctx.send("That doesn't seem to be a role here. Try again with a new role!")
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("Please include a role to give.")
+        elif isinstance(error, RoleNotAllowed):
+            await ctx.send("That role is not in the self-serve list. If this is an error, contact a server "
+                           "administrator to add the role to the list. Otherwise, try again with another role in the "
+                           "list!")
 
 
 def setup(bot):
