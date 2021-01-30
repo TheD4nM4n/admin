@@ -16,6 +16,7 @@ def save_configuration(config) -> None:
         json.dump(config, stored_config, indent=4)
         stored_config.truncate()
 
+
 class RoleNotAllowed(commands.CommandError):
     pass
 
@@ -98,7 +99,6 @@ class ReactionRolesModule(commands.Cog):
             await ctx.message.add_reaction("✅")
         else:
             raise RoleNotAllowed("The role specified is not in the self-serve list.")
-
 
     @give.command()
     async def list(self, ctx: commands.Context):
