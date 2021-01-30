@@ -24,7 +24,7 @@ def beautify_for_description(raw_html):
     for_removal = re.compile('<.*?>')
     cleaned_text = re.sub(for_removal, '', text_with_italics)
     first_paragraph = cleaned_text.split("\n")[0]
-    final_text = first_paragraph[:375] + (first_paragraph[375:] and '...')
+    final_text = first_paragraph[:375] + (first_paragraph[375:] and '... (cont.)')
     return final_text
 
 
@@ -61,8 +61,9 @@ class InfoModule(commands.Cog):
         # Discord.py things
         self.bot = bot
 
-    @commands.command(description="Provides details on the specified game.")
-    async def game(self, ctx: commands.Context, *, arg=None):
+    @commands.command(name="game",
+                      description="Provides details on the specified game.")
+    async def game_command(self, ctx: commands.Context, *, arg=None):
 
         # Makes the bot look like it is typing.
         # Helpful for showing the bot isn't just broken.
@@ -108,49 +109,65 @@ class InfoModule(commands.Cog):
                       description="Searches anime based on what you entered")
     async def anime_command(self, ctx, *, query: str = None):
 
-        # Retrieves a search result from Anilist, then pulls more information from the 1st result
-        results = db.search.anime(f"{query}")
-        anime = db.get.anime(results['data']['Page']['media'][0]['id'])['data']['Media']
+        async with ctx.typing():
+            # Retrieves a search result from Anilist, then pulls more information from the 1st result
+            results = db.search.anime(f"{query}")
+            anime = db.get.anime(results['data']['Page']['media'][0]['id'])['data']['Media']
 
-        # Beautifies description for sending to Discord
-        anime_description = beautify_for_description(anime['description'])
+            # Beautifies description for sending to Discord
+            anime_description = beautify_for_description(anime['description'])
 
-        # Constructs embed for sending
-        embed = Embed(title=f"{anime['title']['romaji']}",
-                      description=f"English: {anime['title']['english']}",
-                      color=0xff0000)
-        embed.set_thumbnail(url=anime['coverImage']['large'])
-        embed.add_field(name="Description",
-                        value=f"{anime_description}",
-                        inline=False)
-        embed.add_field(name="Average Score",
-                        value=f"{anime['averageScore']}")
-        embed.add_field(name="Genre",
-                        value=f"{anime['genres'][0]}")
+            # Constructs embed for sending
+            embed = Embed(title=f"{anime['title']['romaji']}",
+                          description=f"English: {anime['title']['english']}",
+                          color=0xff0000)
+            embed.set_thumbnail(url=anime['coverImage']['large'])
+            embed.add_field(name="Description",
+                            value=f"{anime_description}",
+                            inline=False)
+            embed.add_field(name="Average Score",
+                            value=f"{anime['averageScore']}")
+            embed.add_field(name="Genre",
+                            value=f"{anime['genres'][0]}")
 
         # Sends the embed
         await ctx.send(embed=embed)
 
     @commands.command(name="manga",
                       description="Searches manga based on what you entered")
-    async def manga_command(self, ctx, *, query: str = None):
-        results = db.search.manga(f"{query}")
-        manga = db.get.manga(results['data']['Page']['media'][0]['id'])['data']['Media']
-        manga_description = beautify_for_description(manga['description'])
+    async def manga_command(self, ctx, *, query: str):
 
-        embed = Embed(title=f"{manga['title']['romaji']}",
-                      description=f"English: {manga['title']['english']}",
-                      color=0xff0000)
-        embed.set_thumbnail(url=manga['coverImage']['large'])
-        embed.add_field(name="Description",
-                        value=f"{manga_description}",
-                        inline=False)
-        embed.add_field(name="Average Score",
-                        value=f"{manga['averageScore']}")
-        embed.add_field(name="Genre",
-                        value=f"{manga['genres'][0]}")
+        async with ctx.typing():
+            # Retrieves a search result from Anilist, then pulls more information from the 1st result
+            results = db.search.manga(f"{query}")
+            manga = db.get.manga(results['data']['Page']['media'][0]['id'])['data']['Media']
 
+            # Beautifies description for sending to Discord
+            manga_description = beautify_for_description(manga['description'])
+
+            # Constructs embed for sending
+            embed = Embed(title=f"{manga['title']['romaji']}",
+                          description=f"English: {manga['title']['english']}",
+                          color=0xff0000)
+            embed.set_thumbnail(url=manga['coverImage']['large'])
+            embed.add_field(name="Description",
+                            value=f"{manga_description}",
+                            inline=False)
+            embed.add_field(name="Average Score",
+                            value=f"{manga['averageScore']}")
+            embed.add_field(name="Genre",
+                            value=f"{manga['genres'][0]}")
+
+        # Sends the embed
         await ctx.send(embed=embed)
+
+    @manga_command.error
+    @anime_command.error
+    @game_command.error
+    async def info_error(self, ctx, error):
+        error = getattr(error, "original", error)
+        if isinstance(error, IndexError):
+            await ctx.send(f"The search turned up no results! Try again with a different search.")
 
 
 def setup(bot):
