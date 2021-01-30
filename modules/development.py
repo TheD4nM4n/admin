@@ -22,10 +22,11 @@ class DevelopmentModule(commands.Cog):
         self.bot = bot
 
     @commands.group(description="Makes items.")
+    @commands.has_permissions(administrator=True)
     async def make(self, ctx):
         pass
 
-    @make.command(description="Makes an embed.")
+    @make.command(description="Makes an embed. Denote the beginning of the description using a '|' symbol.")
     @commands.has_permissions(administrator=True)
     async def embed(self, ctx: commands.Context, *, content: str):
 
