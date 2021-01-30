@@ -63,7 +63,8 @@ class AdminBot(commands.Bot):
         # Writes the new config to disk
         save_configuration(config)
 
-    async def on_guild_join(self, guild: Guild) -> None:
+    @staticmethod
+    async def on_guild_join(guild: Guild) -> None:
 
         # Loads the serverconfig.json file and looks for the server in the json
         config = load_configuration()
