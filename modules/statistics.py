@@ -15,8 +15,7 @@ class StatisticsModule(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def statistics(self, ctx: commands.Context) -> None:
 
-        number_of_days = (datetime.today().date() - ctx.guild.created_at.date()).days
-        print(number_of_days)
+        number_of_days = (datetime.today().date() - ctx.guild.created_at.date()).days 
 
         embed = Embed(title="Server Statistics",
                       description=f"Server statistics for {ctx.guild.name}",
@@ -27,6 +26,8 @@ class StatisticsModule(commands.Cog):
                               f"Members/day: {round(len(ctx.guild.members) / number_of_days, 2)} members/day\n"
                               f"",
                         inline=False)
+        embed.add_field(name="Bot Latency",
+                        value=f"{round(self.bot.latency*1000)} ms")
 
         await ctx.send(embed=embed)
         return
