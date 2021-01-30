@@ -106,7 +106,7 @@ class InfoModule(commands.Cog):
         await ctx.send(file=file, embed=embed)
 
     @commands.command(name="anime",
-                      description="Searches anime based on what you entered")
+                      description="Searches anime based on the name entered, and sends back some basic information.")
     async def anime_command(self, ctx, *, query: str = None):
 
         async with ctx.typing():
@@ -134,7 +134,7 @@ class InfoModule(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="manga",
-                      description="Searches manga based on what you entered")
+                      description="Searches manga based on the name entered, and sends back some basic information.")
     async def manga_command(self, ctx, *, query: str):
 
         async with ctx.typing():
