@@ -1,30 +1,27 @@
 import os
 import json
 
-from discord import Embed, File
+from discord import Embed, File, Guild
 from discord.ext import commands
 from discord import Intents
 
-bot = commands.Bot(command_prefix="-", intents=Intents.all())
-bot.remove_command("help")
+bot_2 = commands.Bot(command_prefix="-", intents=Intents.all())
+bot_2.remove_command("help")
 
 
 def load_token() -> str:
-
     # Returns the token stored in the "credentials.json" file.
     with open("./credentials.json", "r") as credentials:
         return json.load(credentials)["discord-token"]
 
 
 def load_default_configuration() -> dict:
-
     # Returns the default configuration (for use in generating new server configurations)
     with open("./data/serverconfig.json", "r") as stored_config:
         return json.load(stored_config)["default"]
 
 
 def load_configuration() -> dict:
-
     # Returns the configuration stored on disk.
     with open("./data/serverconfig.json", "r", encoding="utf-8") as stored_config:
         return json.load(stored_config)
@@ -37,19 +34,41 @@ def save_configuration(config) -> None:
         stored_config.truncate()
 
 
-for module in os.listdir('./modules'):
-    if module.endswith('.py'):
-        bot.load_extension(f'modules.{module[:-3]}')
+class AdminBot(commands.Bot):
 
+    def __init__(self, **kwargs):
+        super().__init__(command_prefix=kwargs['command_prefix'],
+                         intents=kwargs['intents'])
 
-@bot.event
-async def on_ready():
-    config = load_configuration()
+        for module in os.listdir('./modules'):
+            if module.endswith('.py'):
+                self.load_extension(f'modules.{module[:-3]}')
 
-    for guild in bot.guilds:
-        if str(guild.id) not in config.keys():
+        self.remove_command("help")
 
-            # Loads the default config and modifies it to fit the server
+    async def on_ready(self):
+        config = load_configuration()
+
+        for guild in self.guilds:
+            if str(guild.id) not in config.keys():
+                # Loads the default config and modifies it to fit the server
+                default_config = load_default_configuration()
+                default_config["greetings"]["channel"] = guild.system_channel.id
+                default_config["name"] = guild.name
+
+                # Adds the server to the config, with the above configuration
+                config[f"{guild.id}"] = default_config
+
+        # Writes the new config to disk
+        save_configuration(config)
+
+    async def on_guild_join(self, guild: Guild) -> None:
+
+        # Loads the serverconfig.json file and looks for the server in the json
+        config = load_configuration()
+
+        # If the server isn't in the config file, it loads the default config and modifies it to fit the server
+        if guild.id not in config.keys():
             default_config = load_default_configuration()
             default_config["greetings"]["channel"] = guild.system_channel.id
             default_config["name"] = guild.name
@@ -57,27 +76,12 @@ async def on_ready():
             # Adds the server to the config, with the above configuration
             config[f"{guild.id}"] = default_config
 
-    # Writes the new config to disk
-    save_configuration(config)
+            # Writes the new config to disk
+            save_configuration(config)
 
 
-@bot.event
-async def on_guild_join(guild):
-
-    # Loads the serverconfig.json file and looks for the server in the json
-    config = load_configuration()
-
-    # If the server isn't in the config file, it loads the default config and modifies it to fit the server
-    if guild.id not in config.keys():
-        default_config = load_default_configuration()
-        default_config["greetings"]["channel"] = guild.system_channel.id
-        default_config["name"] = guild.name
-
-        # Adds the server to the config, with the above configuration
-        config[f"{guild.id}"] = default_config
-
-        # Writes the new config to disk
-        save_configuration(config)
+bot = AdminBot(command_prefix="-",
+               intents=Intents.all())
 
 
 @bot.command(description="Reloads the specified module, or all of them if no module is specified.")
@@ -169,7 +173,7 @@ async def help_command(ctx: commands.Context, arg=None):
                       color=0xff0000)
         embed.set_thumbnail(url="attachment://vgclove.png")
         for command in bot.commands:
-            command_data = commands.Bot.get_command(bot, command.name)
+            command_data = bot.get_command(command.name)
             if command_data.checks:
                 pass
             else:
@@ -184,7 +188,7 @@ async def help_command(ctx: commands.Context, arg=None):
         embed.set_thumbnail(url="attachment://vgclove.png")
         for command in bot.commands:
             if ctx.author.guild_permissions.administrator:
-                command_data = commands.Bot.get_command(bot, command.name)
+                command_data = bot.get_command(command.name)
                 if not command_data.checks:
                     pass
                 else:
@@ -195,6 +199,7 @@ async def help_command(ctx: commands.Context, arg=None):
     else:
         return
     await ctx.send(file=file, embed=embed)
+
 
 if __name__ == "__main__":
     bot.run(load_token())
