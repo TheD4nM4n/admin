@@ -141,140 +141,213 @@ class ChatFilterModule(commands.Cog):
                                 await log_channel.send(file=file, embed=embed)
                                 return
 
-    @commands.command(description="Allows the configuration of the chat filter in this server.")
+    @commands.group(name="filter",
+                    description="Allows the configuration of the chat filter in this server.",
+                    invoke_without_command=True)
     @commands.has_permissions(administrator=True)
-    async def filter(self, ctx: commands.Context, intent=None, arg=None):
+    async def filter_command(self, ctx: commands.Context):
 
-        # Gets copies of the full config file and the server-specific config
+        file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
+        embed = discord.Embed(title="filter",
+                              description="Provides helpful settings for your chat filter.",
+                              color=0xff0000)
+        embed.set_thumbnail(url="attachment://vgctired.png")
+        embed.add_field(name="Intents",
+                        value="To use these, execute 'filter *intent*'. Some intents may require arguments, "
+                              "and ones that do will have them shown below.",
+                        inline=False)
+        embed.add_field(name="set *#channel*",
+                        value="Sets the channel for filter logs. Use *set none* to disable logging.\n"
+                              "Example usage: *filter set #log*",
+                        inline=False)
+        embed.add_field(name="enable/disable",
+                        value="Enables/disables the chat filter for this server.\n"
+                              "Example usage: *filter enable*",
+                        inline=False)
+        embed.add_field(name="add/remove *word*",
+                        value="Adds/removes the word specified to/from a server-specific blacklist.\n"
+                              "Example usage: *filter add admin*",
+                        inline=False)
+        await ctx.send(file=file, embed=embed)
+        return
+
+    @filter_command.command(name="enable")
+    async def enable_filter(self, ctx: commands.Context):
+
         config = load_configuration()
         guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
 
-        if intent:
-            if intent.lower() == "enable":
+        guild_config["enabled"] = True
+        save_configuration(config)
+        await ctx.message.add_reaction("✅")
+        return
 
-                guild_config["enabled"] = True
+    @filter_command.command(name="disable")
+    async def disable_filter(self, ctx: commands.Context):
+
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
+
+        guild_config["enabled"] = False
+        save_configuration(config)
+        await ctx.message.add_reaction("✅")
+        return
+
+    @filter_command.command(name="log")
+    async def filter_log(self, ctx: commands.Context, channel):
+
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
+        channels = ctx.message.channel_mentions
+
+        if channels:
+            guild_config["log-channel"] = channels[0].id
+            save_configuration(config)
+            await ctx.message.add_reaction("✅")
+            return
+        else:
+            if channel.lower() == "none":
+                guild_config["log-channel"] = None
                 save_configuration(config)
-                return await ctx.message.add_reaction("✅")
+                await ctx.message.add_reaction("✅")
+                return
 
-            elif intent.lower() == "disable":
+    @filter_log.error
+    async def filter_log_error(self, ctx, error):
 
-                guild_config["enabled"] = False
-                save_configuration(config)
-                return await ctx.message.add_reaction("✅")
+        # Gets original error (useful if the error invoked is a CommandInvokeError)
+        error = getattr(error, "original", error)
 
-            elif intent.lower() == "set":
+        # If a channel or "none" isn't given
+        if isinstance(error, commands.MissingRequiredArgument):
 
-                channels = ctx.message.channel_mentions
+            # Sends an embed telling the user to try again.
+            file = discord.File(fp="./assets/vgcsad.png")
+            embed = discord.Embed(title="Sorry, something went wrong...",
+                                  description="There was no channel mentioned in that message. Make sure "
+                                              "you use the hashtag (#) to properly mention the channel. "
+                                              "Go ahead and try again!",
+                                  color=0xff0000)
+            embed.set_thumbnail(url="attachment://vgcsad.png")
+            await ctx.send(file=file, embed=embed)
+            return
 
-                if channels:
-                    guild_config["log-channel"] = channels[0].id
-                    save_configuration(config)
-                    return await ctx.message.add_reaction("✅")
-                else:
-                    if arg.lower() == "none":
-                        guild_config["log-channel"] = None
-                        save_configuration(config)
-                        return await ctx.message.add_reaction("✅")
-                    else:
-                        file = discord.File(fp="./assets/vgcsad.png")
-                        embed = discord.Embed(title="Sorry, something went wrong...",
-                                              description="There was no channel mentioned in that message. Make sure "
-                                                          "you use the hashtag (#) to properly mention the channel. "
-                                                          "Go ahead and try again!",
-                                              color=0xff0000)
-                        embed.set_thumbnail(url="attachment://vgcsad.png")
-                        return await ctx.send(file=file, embed=embed)
+    @filter_command.command(name="add")
+    async def add_word(self, ctx: commands.Context, word):
 
-            elif intent.lower() == "add":
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
 
-                if arg:
-                    guild_config["custom-words"].append(arg.lower())
-                    save_configuration(config)
-                    return await ctx.message.add_reaction("✅")
+        guild_config["custom-words"].append(word.lower())
+        save_configuration(config)
+        await ctx.message.add_reaction("✅")
+        return
 
-                else:
-                    file = discord.File(fp="./assets/vgcsad.png")
-                    embed = discord.Embed(title="Sorry, something went wrong...",
-                                          description="It looks like you didn't provide a word. Try again with a "
-                                                      "word, like *filter add admin*.",
-                                          color=0xff0000)
-                    embed.set_thumbnail(url="attachment://vgcsad.png")
-                    return await ctx.send(file=file, embed=embed)
-                    pass
+    @add_word.error
+    async def add_word_error(self, ctx, error):
+        error = getattr(error, "original", error)
 
-            elif intent.lower() == "remove":
+        if isinstance(error, commands.MissingRequiredArgument):
+            file = discord.File(fp="./assets/vgcsad.png")
+            embed = discord.Embed(title="Sorry, something went wrong...",
+                                  description="It looks like you didn't provide a word. Try again with a "
+                                              "word, like *filter add admin*.",
+                                  color=0xff0000)
+            embed.set_thumbnail(url="attachment://vgcsad.png")
+            await ctx.send(file=file, embed=embed)
+            return
 
-                if arg:
-                    if arg in guild_config["custom-words"]:
-                        guild_config["custom-words"].remove(arg.lower())
-                        save_configuration(config)
-                        return await ctx.message.add_reaction("✅")
-                    else:
-                        file = discord.File(fp="./assets/vgcyes.png")
-                        embed = discord.Embed(title="That word wasn't found...",
-                                              description="Looks like you didn't need to run that command, "
-                                                          "because that word isn't in your server's list!",
-                                              color=0xff0000)
-                        embed.set_thumbnail(url="attachment://vgcyes.png")
-                        return await ctx.send(file=file, embed=embed)
+    @filter_command.command(name="remove")
+    async def remove_word(self, ctx: commands.Context, word):
 
-                else:
-                    file = discord.File(fp="./assets/vgcsad.png")
-                    embed = discord.Embed(title="Sorry, something went wrong...",
-                                          description="It looks like you didn't provide a word. Try again with a "
-                                                      "word, like *filter remove admin*.",
-                                          color=0xff0000)
-                    embed.set_thumbnail(url="attachment://vgcsad.png")
-                    return await ctx.send(file=file, embed=embed)
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
 
-            elif intent.lower() == "list":
+        guild_config["custom-words"].remove(word.lower())
+        save_configuration(config)
 
-                if guild_config["custom-words"]:
-                    embed = discord.Embed(title="Custom Words",
-                                          description="These words are filtered from chat within this server.",
-                                          color=0xff0000)
+        await ctx.message.add_reaction("✅")
+        return
 
-                    string_of_words = str()
+    @remove_word.error
+    async def remove_word_error(self, ctx, error):
+        error = getattr(error, "original", error)
 
-                    for word in guild_config["custom-words"]:
-                        string_of_words += f"{word}\n"
+        if isinstance(error, commands.MissingRequiredArgument):
+            file = discord.File(fp="./assets/vgcsad.png")
+            embed = discord.Embed(title="Sorry, something went wrong...",
+                                  description="It looks like you didn't provide a word. Try again with a "
+                                              "word, like *filter remove admin*.",
+                                  color=0xff0000)
+            embed.set_thumbnail(url="attachment://vgcsad.png")
+            await ctx.send(file=file, embed=embed)
+            return
+        elif isinstance(error, ValueError):
+            file = discord.File(fp="./assets/vgcyes.png")
+            embed = discord.Embed(title="That word wasn't found...",
+                                  description="Looks like you didn't need to run that command, "
+                                              "because that word isn't in your server's list!",
+                                  color=0xff0000)
+            embed.set_thumbnail(url="attachment://vgcyes.png")
+            await ctx.send(file=file, embed=embed)
+            return
 
-                    embed.add_field(name=f"There are {len(guild_config['custom-words'])} in this list:",
-                                    value=f"{string_of_words}")
+    @filter_command.command(name="list")
+    async def send_custom_list(self, ctx: commands.Context):
 
-                    return await ctx.send(embed=embed)
-                else:
-                    embed = discord.Embed(title="Custom Words",
-                                          description="These words are filtered from chat within this server.\n\u200B",
-                                          color=0xff0000)
-                    embed.add_field(name="There are no words in this list!",
-                                    value="Use *filter add* to add words.")
-                    return await ctx.send(embed=embed)
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
 
-            elif intent.lower() == "default":
+        if guild_config["custom-words"]:
+            embed = discord.Embed(title="Custom Words",
+                                  description="These words are filtered from chat within this server.",
+                                  color=0xff0000)
 
-                if arg:
+            string_of_words = str()
 
-                    if arg.lower() == "enable":
+            for word in guild_config["custom-words"]:
+                string_of_words += f"{word}\n"
 
-                        guild_config["use-default-list"] = True
-                        save_configuration(config)
-                        await ctx.message.add_reaction("✅")
-                        return
+            embed.add_field(name=f"There are {len(guild_config['custom-words'])} in this list:",
+                            value=f"{string_of_words}")
 
-                    elif arg.lower() == "disable":
-                        guild_config["use-default-list"] = False
-                        save_configuration(config)
-                        await ctx.message.add_reaction("✅")
-                        return
-
-            else:
-                message = usage_embed()
-                return await ctx.send(file=message[0], embed=message[1])
+            await ctx.send(embed=embed)
+            return
 
         else:
-            message = usage_embed()
-            return await ctx.send(file=message[0], embed=message[1])
+            embed = discord.Embed(title="Custom Words",
+                                  description="These words are filtered from chat within this server.\n\u200B",
+                                  color=0xff0000)
+            embed.add_field(name="There are no words in this list!",
+                            value="Use *filter add* to add words.")
+            await ctx.send(embed=embed)
+            return
+
+    @filter_command.group(name="default")
+    async def default_filter_list(self, ctx: commands.Context):
+        pass
+
+    @default_filter_list.command(name="enable")
+    async def enable_default_list(self, ctx: commands.Context):
+
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
+
+        guild_config["use-default-list"] = True
+        save_configuration(config)
+        await ctx.message.add_reaction("✅")
+        return
+
+    @default_filter_list.command(name="disable")
+    async def disable_default_list(self, ctx: commands.Context):
+
+        config = load_configuration()
+        guild_config = config[f"{ctx.guild.id}"]["chat-filter"]
+
+        guild_config["use-default-list"] = False
+        save_configuration(config)
+        await ctx.message.add_reaction("✅")
+        return
 
     @commands.command(description="Add/remove users or channels to the server whitelist.")
     @commands.has_permissions(administrator=True)
