@@ -166,39 +166,44 @@ async def disable(ctx: commands.Context, module_name):
         await ctx.send("Sorry, that module either doesn't exist, or is already disabled.")
 
 
-@bot.command(name="help", description="Displays all Admin commands.")
-async def help_command(ctx: commands.Context, arg=None):
+@bot.group(name="help", description="Displays all Admin commands.", invoke_without_command=True)
+async def help_command(ctx: commands.Context):
     file = File(fp="./assets/vgclove.png")
-    if arg is None:
-        embed = Embed(title="Help", description="Thank you for seeing what I can do!",
-                      color=0xff0000)
-        embed.set_thumbnail(url="attachment://vgclove.png")
-        for command in bot.commands:
-            command_data = bot.get_command(command.name)
-            if command_data.checks:
-                pass
+
+    embed = Embed(title="Help", description="Thank you for seeing what I can do!",
+                  color=0xff0000)
+    embed.set_thumbnail(url="attachment://vgclove.png")
+    for command in bot.commands:
+        command_data = bot.get_command(command.name)
+        if command_data.checks:
+            pass
+        else:
+            if command_data.description:
+                embed.add_field(name=command_data.name, value=command_data.description, inline=False)
             else:
-                if command_data.description:
-                    embed.add_field(name=command_data.name, value=command_data.description, inline=False)
-                else:
-                    embed.add_field(name=command_data.name, value="placeholder", inline=False)
-        embed.set_footer(text="For moderator commands, execute the command '-help moderator'.")
-    elif arg == "moderator":
-        embed = Embed(title="Help", description="Thank you for seeing what I can do (for administrators)!",
-                      color=0xff0000)
-        embed.set_thumbnail(url="attachment://vgclove.png")
-        for command in bot.commands:
-            if ctx.author.guild_permissions.administrator:
-                command_data = bot.get_command(command.name)
-                if not command_data.checks:
-                    pass
-                else:
-                    if command_data.description:
-                        embed.add_field(name=command_data.name, value=command_data.description, inline=False)
-                    else:
-                        embed.add_field(name=command_data.name, value="placeholder", inline=False)
-    else:
-        return
+                embed.add_field(name=command_data.name, value="placeholder", inline=False)
+    embed.set_footer(text="For moderator commands, execute the command '-help moderator'.")
+
+    await ctx.send(file=file, embed=embed)
+
+
+@help_command.command(name="moderator")
+@commands.has_permissions(administrator=True)
+async def moderator_help(ctx: commands.Context):
+    file = File(fp="./assets/vgclove.png")
+    embed = Embed(title="Help", description="Thank you for seeing what I can do (for administrators)!",
+                  color=0xff0000)
+    embed.set_thumbnail(url="attachment://vgclove.png")
+    for command in bot.commands:
+        command_data = bot.get_command(command.name)
+        if not command_data.checks:
+            pass
+        else:
+            if command_data.description:
+                embed.add_field(name=command_data.name, value=command_data.description, inline=False)
+            else:
+                embed.add_field(name=command_data.name, value="placeholder", inline=False)
+
     await ctx.send(file=file, embed=embed)
 
 
