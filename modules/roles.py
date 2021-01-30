@@ -48,12 +48,9 @@ class ReactionRolesModule(commands.Cog):
 
     @role.command(name="all")
     @commands.has_permissions(administrator=True)
-    async def role_all(self, ctx, role: discord.Role):
-        print("role all")
+    async def role_all(self, ctx: commands.Context, role: discord.Role):
 
-        if role:
-
-            await ctx.trigger_typing()
+        async with ctx.typing():
 
             number_of_roles_given = 0
             number_of_errors = 0
@@ -70,7 +67,7 @@ class ReactionRolesModule(commands.Cog):
                                   color=0xff0000)
             embed.set_thumbnail(url="attachment://vgcrollsafe.png")
 
-            await ctx.send(file=file, embed=embed)
+        await ctx.send(file=file, embed=embed)
 
     @role_all.error
     async def all_role_error(self, ctx, error):
