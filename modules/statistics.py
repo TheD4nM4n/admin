@@ -11,6 +11,10 @@ class StatisticsModule(commands.Cog):
         # Discord.py things
         self.bot = bot
 
+    @commands.Cog.listener('on_ready')
+    async def loaded_message(self):
+        print("'Statistics' module loaded.")
+
     @commands.command(aliases=["stats"], description="Provides brief statistics about the server.")
     @commands.has_permissions(administrator=True)
     async def statistics(self, ctx: commands.Context) -> None:

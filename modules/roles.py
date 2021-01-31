@@ -26,9 +26,9 @@ class ReactionRolesModule(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print("'Reaction Roles' module loaded.")
+    @commands.Cog.listener('on_ready')
+    async def loaded_message(self):
+        print("'Roles' module loaded.")
 
     @commands.Cog.listener("on_raw_reaction_add")
     async def reaction_role_listener(self, reaction):

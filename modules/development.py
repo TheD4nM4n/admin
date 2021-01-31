@@ -21,24 +21,9 @@ class DevelopmentModule(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(description="Makes items.")
-    @commands.has_permissions(administrator=True)
-    async def make(self, ctx):
-        pass
-
-    @make.command(description="Makes an embed. Denote the beginning of the description using a '|' symbol.")
-    @commands.has_permissions(administrator=True)
-    async def embed(self, ctx: commands.Context, *, content: str):
-
-        if content:
-
-            split_message = content.split("|")
-
-            embed = discord.Embed(title=split_message[0],
-                                  description=split_message[1],
-                                  color=0xff0000)
-
-            await ctx.send(embed=embed)
+    @commands.Cog.listener('on_ready')
+    async def loaded_message(self):
+        print("'Development' module loaded.")
 
 
 def setup(bot):

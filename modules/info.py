@@ -61,6 +61,10 @@ class InfoModule(commands.Cog):
         # Discord.py things
         self.bot = bot
 
+    @commands.Cog.listener('on_ready')
+    async def loaded_message(self):
+        print("'Info' module loaded.")
+
     @commands.command(name="game",
                       description="Provides details on the specified game.")
     async def game_command(self, ctx: commands.Context, *, arg=None):

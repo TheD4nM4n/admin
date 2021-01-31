@@ -10,6 +10,10 @@ class EventsModule(commands.Cog):
         # Discord.py things
         self.bot = bot
 
+    @commands.Cog.listener('on_ready')
+    async def loaded_message(self):
+        print("'Events' module loaded.")
+
     @commands.command(description="A powerful set of tools for running giveaways.")
     @commands.has_permissions(administrator=True)
     async def giveaway(self, ctx: commands.Context, intent=None, role: Role = None) -> None:

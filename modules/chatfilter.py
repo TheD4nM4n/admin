@@ -49,8 +49,8 @@ class ChatFilterModule(commands.Cog):
         self.bot = bot
         profanity.load_censor_words_from_file("./data/default_word_list.txt")
 
-    @commands.Cog.listener()
-    async def on_ready(self) -> None:
+    @commands.Cog.listener('on_ready')
+    async def loaded_message(self) -> None:
         print("'Chat Filter' module loaded.")
 
     def exempt_check(self, message, guild_config) -> bool:

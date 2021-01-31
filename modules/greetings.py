@@ -27,8 +27,8 @@ class GreetingsModule(commands.Cog):
         with open("./data/greetings.json", "r") as messages:
             self.messages = json.load(messages)['messages']
 
-    @commands.Cog.listener()
-    async def on_ready(self):
+    @commands.Cog.listener('on_ready')
+    async def loaded_message(self):
         print("'Greetings' module loaded.")
 
     @commands.Cog.listener("on_member_join")
