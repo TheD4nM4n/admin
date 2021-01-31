@@ -25,15 +25,19 @@ class ModerationModule(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.Cog.listener('on_ready')
+    async def loaded_message(self):
+        print("'Moderation' module loaded.")
+
     @commands.Cog.listener("on_message")
-    async def on_message(self, message):
+    async def mute_listener(self, message):
 
         # Loads mute configuration
         config = load_configuration()
         guild_config = config[f"{message.guild.id}"]["mute"]
 
         # Checks if member is muted and deletes message if so
-        if str(message.author.id) in guild_config["muted-members"]:
+        if message.author.id in guild_config["muted-members"]:
             return await message.delete()
 
     @commands.command(description="Deletes the number of messages specified, starting at the most recent (includes "
