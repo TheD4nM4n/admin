@@ -31,8 +31,8 @@ class ToolsModule(commands.Cog):
     async def embed(self, ctx: commands.Context, color: str = "red", *, content: str):
 
         # Check function for seeing if the message sent is valid
-        def check(message: discord.Message) -> bool:
-            return message.author == ctx.message.author
+        def check(msg: discord.Message) -> bool:
+            return msg.author == ctx.message.author
 
         # Fetches color from the dictionary, and splits the content into it's title and description
         html_color = COLORS[color]
