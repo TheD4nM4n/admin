@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import asyncio
 
 COLORS = {
     "red": 0xff0000,
@@ -32,7 +33,7 @@ class ToolsModule(commands.Cog):
 
         # Check function for seeing if the message sent is valid
         def check(msg: discord.Message) -> bool:
-            return msg.author == ctx.message.author
+            return msg.author == ctx.message.author and msg.channel == ctx.channel
 
         # Fetches color from the dictionary, and splits the content into it's title and description
         html_color = COLORS[color]
@@ -46,11 +47,12 @@ class ToolsModule(commands.Cog):
                               color=html_color)
 
         await ctx.send("Construction started! To continue adding fields, follow the initial formatting *name|value* "
-                       "in new messages, then send *done* when complete.")
+                       "in new messages, then send *done* when complete.\n*Note: The construction will time out 60 "
+                       "seconds after the last field added.*")
 
         while not finished:
 
-            message: discord.Message = await self.bot.wait_for('message', check=check)
+            message: discord.Message = await self.bot.wait_for('message', check=check, timeout=60)
 
             if message.content.lower() == "done":
                 finished = True
@@ -73,6 +75,8 @@ class ToolsModule(commands.Cog):
         elif isinstance(error, IndexError):
             await ctx.send("You didn't separate your title and description correctly! Use a | symbol to separate the "
                            "title and description. Try again!")
+        elif isinstance(error, asyncio.TimeoutError):
+            await ctx.send("The construction has timed out, and as such has been cancelled. Try again!")
 
 
 def setup(bot):
