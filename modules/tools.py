@@ -64,6 +64,11 @@ class ToolsModule(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @make.group(name="server")
+    @commands.has_permissions(administrator=True)
+    async def make_server(self, ctx: commands.Context):
+        pass
+
     @embed.error
     async def make_embed_error(self, ctx, error):
         error = getattr(error, "original", error)
