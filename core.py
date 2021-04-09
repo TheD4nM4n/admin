@@ -5,9 +5,6 @@ from discord import Embed, File, Guild, Activity, ActivityType
 from discord.ext import commands
 from discord import Intents
 
-bot_2 = commands.Bot(command_prefix="-", intents=Intents.all())
-bot_2.remove_command("help")
-
 
 def load_token() -> str:
     # Returns the token stored in the "credentials.json" file.
