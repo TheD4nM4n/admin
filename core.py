@@ -54,7 +54,8 @@ class AdminBot(commands.Bot):
             if str(guild.id) not in config.keys():
                 # Loads the default config and modifies it to fit the server
                 default_config = load_default_configuration()
-                default_config["greetings"]["channel"] = guild.system_channel.id
+                if guild.system_channel:
+                    default_config["greetings"]["channel"] = guild.system_channel.id
                 default_config["name"] = guild.name
 
                 # Adds the server to the config, with the above configuration
@@ -89,6 +90,7 @@ bot = AdminBot(command_prefix="-",
 @bot.command(description="Reloads the specified module, or all of them if no module is specified.")
 @commands.has_permissions(administrator=True)
 async def reload(ctx: commands.Context, module_name=None):
+
     if module_name is None:
 
         active_modules = [extension for extension in bot.extensions]
@@ -101,6 +103,7 @@ async def reload(ctx: commands.Context, module_name=None):
                 bot.load_extension(f"modules.{module_title[:-3]}")
 
         await ctx.message.add_reaction("✅")
+
     else:
 
         full_module_name = f'modules.{module_name}'
