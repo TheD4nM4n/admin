@@ -2,19 +2,7 @@ import json
 import discord
 from discord.ext import commands
 from random import choice
-
-
-def load_configuration():
-    with open("./data/serverconfig.json", "r") as stored_config:
-        return json.load(stored_config)
-
-
-def save_configuration(config):
-    with open("./data/serverconfig.json", "w") as stored_config:
-
-        # This writes the configuration with the changes made to the disk.
-        json.dump(config, stored_config, indent=4)
-        stored_config.truncate()
+from core import load_configuration, save_configuration
 
 
 class GreetingsModule(commands.Cog):
@@ -31,13 +19,13 @@ class GreetingsModule(commands.Cog):
     async def loaded_message(self):
         print("'Greetings' module loaded.")
 
-    @commands.Cog.listener("on_member_join")
-    async def on_member_join(self, member):
+    @commands.Cog.listener('on_member_join')
+    async def send_greeting(self, member):
 
         # Gets the configuration for the server that the user joined
         guild_config = load_configuration()[f"{member.guild.id}"]["greetings"]
 
-        """
+        """ 
                 If greetings are enabled for the server, send a message from the list.
 
                 Custom messages can be added to greetings.json.

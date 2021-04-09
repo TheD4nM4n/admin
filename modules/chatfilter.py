@@ -1,21 +1,10 @@
 import discord
-import json
+import sys
 
+from core import load_configuration, save_configuration
 from re import sub
 from discord.ext import commands
 from better_profanity import profanity
-
-
-def load_configuration():
-    with open("./data/serverconfig.json", "r") as stored_config:
-        return json.load(stored_config)
-
-
-def save_configuration(config):
-    with open("./data/serverconfig.json", "w") as stored_config:
-        # This writes the configuration with the changes made to the disk.
-        json.dump(config, stored_config, indent=4)
-        stored_config.truncate()
 
 
 def usage_embed() -> tuple:
@@ -151,23 +140,29 @@ class ChatFilterModule(commands.Cog):
         embed = discord.Embed(title="filter",
                               description="Provides helpful settings for your chat filter.",
                               color=0xff0000)
+
         embed.set_thumbnail(url="attachment://vgctired.png")
+
         embed.add_field(name="Intents",
                         value="To use these, execute 'filter *intent*'. Some intents may require arguments, "
                               "and ones that do will have them shown below.",
                         inline=False)
+
         embed.add_field(name="set *#channel*",
                         value="Sets the channel for filter logs. Use *set none* to disable logging.\n"
                               "Example usage: *filter set #log*",
                         inline=False)
+
         embed.add_field(name="enable/disable",
                         value="Enables/disables the chat filter for this server.\n"
                               "Example usage: *filter enable*",
                         inline=False)
+
         embed.add_field(name="add/remove *word*",
                         value="Adds/removes the word specified to/from a server-specific blacklist.\n"
                               "Example usage: *filter add admin*",
                         inline=False)
+
         await ctx.send(file=file, embed=embed)
         return
 
@@ -220,7 +215,6 @@ class ChatFilterModule(commands.Cog):
 
         # If a channel or "none" isn't given
         if isinstance(error, commands.MissingRequiredArgument):
-
             # Sends an embed telling the user to try again.
             file = discord.File(fp="./assets/vgcsad.png")
             embed = discord.Embed(title="Sorry, something went wrong...",

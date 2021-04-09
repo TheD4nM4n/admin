@@ -2,19 +2,7 @@ import json
 import discord
 
 from discord.ext import commands
-
-
-def load_configuration() -> dict:
-    # Returns the configuration stored on disk.
-    with open("./data/serverconfig.json", "r", encoding="utf-8") as stored_config:
-        return json.load(stored_config)
-
-
-def save_configuration(config) -> None:
-    with open("./data/serverconfig.json", "w") as stored_config:
-        # This writes the configuration with the changes made to the disk.
-        json.dump(config, stored_config, indent=4)
-        stored_config.truncate()
+from core import load_configuration, save_configuration
 
 
 class RoleNotAllowed(commands.CommandError):
