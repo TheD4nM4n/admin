@@ -369,7 +369,7 @@ class ChatFilterModule(commands.Cog):
                         mentions = ctx.message.mentions
 
                         if mentions:
-                            guild_config["whitelisted-channels"].remove(mentions[0].id)
+                            guild_config["whitelisted-channels"].append(mentions[0].id)
                             save_configuration(config)
                             await ctx.message.add_reaction("✅")
                             return
