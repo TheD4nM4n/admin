@@ -1,10 +1,10 @@
-import discord
-import sys
-
-from core import admin, load_configuration, save_configuration
 from re import sub
-from discord.ext import commands
+
+import discord
 from better_profanity import profanity
+from discord.ext import commands
+
+from core import admin, save_configuration
 
 
 def usage_embed() -> tuple:
