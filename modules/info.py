@@ -46,7 +46,6 @@ def get_game(name):
     # Prepares name for screenshot GET request
     name_with_underscores = game.name.lower().replace(" ", "-")
     final_name = re.sub("[^\\w-]+", "", name_with_underscores)
-    print(final_name)
 
     # Gets screenshots of game
     photos = rawg.get_request(url=f"https://api.rawg.io/api/games/{final_name}/screenshots")
