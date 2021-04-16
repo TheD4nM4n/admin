@@ -17,9 +17,6 @@ class ToolsModule(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.Cog.listener('on_ready')
-    async def loaded_message(self):
         print("'Tools' module loaded.")
 
     @commands.group(description="Makes items.")
