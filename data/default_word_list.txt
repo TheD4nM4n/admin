@@ -179,9 +179,7 @@ fannybandit
 fannyflaps
 fannyfucker
 fanyy
-fart
 fartknocker
-fat
 fatass
 fcuk
 fcuker
@@ -213,12 +211,10 @@ fistfuckings
 fistfucks
 fisting
 fisty
-flange
 flogthelog
 floozy
 foad
 fondle
-foobar
 fook
 fooker
 foot job
@@ -301,7 +297,6 @@ ghey
 gigolo
 glans
 goatse
-god
 god-dam
 god-damned
 godamn
@@ -319,7 +314,6 @@ gook
 gooks
 gringo
 gspot
-gtfo
 guido
 h0m0
 h0mo
@@ -332,13 +326,11 @@ hebe
 heeb
 hemp
 hentai
-heroin
 herp
 herpes
 herpy
 heshe
 hitler
-hiv
 hoar
 hoare
 hobag
@@ -362,7 +354,6 @@ horny
 hotsex
 howtokill
 howtomurdep
-hump
 humped
 humping
 hussy
@@ -397,7 +388,6 @@ kikes
 kinbaku
 kinky
 kinkyJesus
-kkk
 klan
 knob
 knobead
@@ -439,7 +429,6 @@ lezzies
 lezzy
 loin
 loins
-lube
 lust
 lusting
 lusty
@@ -465,10 +454,7 @@ masturbate
 masturbating
 masturbation
 maxi
-menses
-menstruate
-menstruation
-meth
+menses=
 milf
 mo-fo
 mof0
@@ -580,7 +566,6 @@ pantie
 panties
 panty
 pastie
-pasty
 pawn
 pcp
 pecker
@@ -588,13 +573,11 @@ pedo
 pedophile
 pedophilia
 pedophiliac
-pee
 peepee
 penetrate
 penetration
 penial
 penile
-penis
 penisfucker
 perversion
 peyote
@@ -630,12 +613,10 @@ polack
 pollock
 poon
 poontang
-poop
 porn
 porno
 pornography
 pornos
-pot
 potty
 prick
 pricks
@@ -648,7 +629,6 @@ pubic
 pubis
 punkass
 punky
-puss
 pusse
 pussi
 pussies
@@ -687,7 +667,6 @@ rimjob
 rimming
 ritard
 rtard
-rum
 rump
 rumprammer
 ruski
@@ -706,7 +685,6 @@ scag
 scantily
 schizo
 schlong
-screw
 screwed
 screwing
 scroat
@@ -715,7 +693,6 @@ scrot
 scrote
 scrotum
 scrud
-scum
 seaman
 seamen
 seduce
@@ -794,7 +771,6 @@ steamy
 stfu
 stiffy
 stoned
-strip
 strip club
 stripclub
 stroke
@@ -821,7 +797,6 @@ three some
 threesome
 throating
 thrust
-thug
 tinkle
 tit
 titfuck
@@ -852,25 +827,21 @@ twats
 twatty
 twunt
 twunter
-ugly
 undies
 unwed
 urinal
 urine
 uterus
-uzi
 v14gra
 v1gra
 vag
 vagina
 valium
 viagra
-virgin
 vixen
 vodka
 vomit
 voyeur
-vulgar
 vulva
 w00se
 wad
@@ -880,11 +851,9 @@ wanker
 wanky
 wazoo
 wedgie
-weed
 weenie
 weewee
 weiner
-weirdo
 wench
 wetback
 wh0re
