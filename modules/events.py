@@ -9,9 +9,6 @@ class EventsModule(commands.Cog):
 
         # Discord.py things
         self.bot = bot
-
-    @commands.Cog.listener('on_ready')
-    async def loaded_message(self):
         print("'Events' module loaded.")
 
     @commands.command(description="A powerful set of tools for running giveaways.")
