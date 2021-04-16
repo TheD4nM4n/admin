@@ -4,7 +4,7 @@ import sys
 from core import load_configuration, save_configuration
 from re import sub
 from discord.ext import commands
-from better_profanity import profanity
+from profanity_check import predict_prob
 
 
 def usage_embed() -> tuple:
@@ -36,7 +36,6 @@ class ChatFilterModule(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        profanity.load_censor_words_from_file("./data/default_word_list.txt")
 
     @commands.Cog.listener('on_ready')
     async def loaded_message(self) -> None:
@@ -107,9 +106,9 @@ class ChatFilterModule(commands.Cog):
                             return
 
                     # ...check for profanity.
-                    if guild_config["use-default-list"]:
-
-                        if profanity.contains_profanity(text_without_formatting):
+                    if guild_config["use-default-filter"]:
+                        print(predict_prob([text_without_formatting]))
+                        if predict_prob([text_without_formatting]) >= 0.75:
 
                             # Delete message
                             await message.delete()
@@ -122,8 +121,6 @@ class ChatFilterModule(commands.Cog):
                                                                   f"Channel: {message.channel}\n",
                                                       color=0xff0000)
                                 embed.add_field(name="Message content:", value=message.content)
-                                embed.add_field(name="Filtered content:",
-                                                value=profanity.censor(text_without_formatting, "#"))
                                 embed.set_thumbnail(url="attachment://vgcdisgusting.png")
                                 log_channel = self.bot.get_channel(guild_config["log-channel"])
 
