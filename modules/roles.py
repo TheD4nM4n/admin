@@ -1,8 +1,7 @@
-import json
 import discord
 
 from discord.ext import commands
-from core import load_configuration, save_configuration
+from core import admin
 
 
 class RoleNotAllowed(commands.CommandError):
@@ -13,15 +12,12 @@ class ReactionRolesModule(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.Cog.listener('on_ready')
-    async def loaded_message(self):
         print("'Roles' module loaded.")
 
     @commands.Cog.listener("on_raw_reaction_add")
     async def reaction_role_listener(self, reaction):
 
-        guild_reaction_roles = load_configuration()[f"{reaction.guild_id}"]["reaction-roles"]
+        guild_reaction_roles = admin.config[f"{reaction.guild_id}"]["reaction-roles"]
         if str(reaction.message_id) in guild_reaction_roles.keys():
 
             reaction_role_pairs = guild_reaction_roles[str(reaction.message_id)]
@@ -79,7 +75,7 @@ class ReactionRolesModule(commands.Cog):
     async def give(self, ctx: commands.Context, role: discord.Role):
 
         # Loads the list of roles allowed to be self-served
-        self_serve_roles = load_configuration()[f"{ctx.guild.id}"]["self-serve"]
+        self_serve_roles = admin.config[f"{ctx.guild.id}"]["self-serve"]
 
         # Gives the
         if role.id in self_serve_roles:
@@ -92,7 +88,7 @@ class ReactionRolesModule(commands.Cog):
     async def list(self, ctx: commands.Context):
 
         # Loads the list of roles allowed to be self-served
-        self_serve_roles = load_configuration()[f"{ctx.guild.id}"]["self-serve"]
+        self_serve_roles = admin.config[f"{ctx.guild.id}"]["self-serve"]
 
         string_of_roles = str()
         if self_serve_roles:

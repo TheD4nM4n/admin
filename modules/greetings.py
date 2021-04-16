@@ -2,28 +2,24 @@ import json
 import discord
 from discord.ext import commands
 from random import choice
-from core import load_configuration, save_configuration
+from core import admin
 
 
 class GreetingsModule(commands.Cog):
 
     def __init__(self, bot):
-        # Normal discord.py things
         self.bot = bot
+        print("'Greetings' module loaded.")
 
         # This loads the preset messages in welcomeconfig.json.
         with open("./data/greetings.json", "r") as messages:
             self.messages = json.load(messages)['messages']
 
-    @commands.Cog.listener('on_ready')
-    async def loaded_message(self):
-        print("'Greetings' module loaded.")
-
     @commands.Cog.listener('on_member_join')
     async def send_greeting(self, member):
 
         # Gets the configuration for the server that the user joined
-        guild_config = load_configuration()[f"{member.guild.id}"]["greetings"]
+        guild_config = admin.config[f"{member.guild.id}"]["greetings"]
 
         """ 
                 If greetings are enabled for the server, send a message from the list.
@@ -43,8 +39,7 @@ class GreetingsModule(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def greetings(self, ctx: commands.Context, intent=None, channel: discord.TextChannel = None):
 
-        config = load_configuration()
-        guild_config = config[f"{ctx.guild.id}"]["greetings"]
+        guild_config = admin.config[f"{ctx.guild.id}"]["greetings"]
 
         if intent:
 
@@ -52,14 +47,12 @@ class GreetingsModule(commands.Cog):
 
                 # This enables welcome messages for the server
                 guild_config["enabled"] = True
-                save_configuration(config)
                 return await ctx.message.add_reaction("✅")
 
             elif intent.lower() == "disable":
 
                 # I give you three guesses as to what this does
                 guild_config["enabled"] = False
-                save_configuration(config)
                 return await ctx.message.add_reaction("✅")
 
             elif intent.lower() == "set":
@@ -68,7 +61,6 @@ class GreetingsModule(commands.Cog):
                 if channel:
                     if channel.guild.id == ctx.guild.id:
                         guild_config["channel"] = channel.id
-                        save_configuration(config)
                         return await ctx.message.add_reaction("✅")
 
             else:
