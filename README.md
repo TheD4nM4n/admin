@@ -21,10 +21,11 @@ With a focus on education, Admin includes powerful moderation tools to keep your
     - Welcome messages automatically welcome people to your server
     - Make your own custom messages
     - Easy way to change the welcome channel
-- Automatic moderation
+- Powerful moderation
     - Immediate deletion of messages with vulgar language
     - Add custom words to a blacklist
     - Utilize a default word list for easy moderation
+    - Mute members to keep them from typing in chat channels
 - Event management
     - Commands to draw winners for giveaways
 - Modular nature
