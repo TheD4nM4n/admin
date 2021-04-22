@@ -27,7 +27,7 @@ class AdminBot(commands.Bot):
                 self.load_extension(f'modules.{module[:-3]}')
 
         for guild in self.guilds:
-            if str(guild.id) not in self.config.keys():
+            if guild.id not in self.config:
                 # Loads the default config and modifies it to fit the server
                 default_config = self.load_default_configuration()
                 if guild.system_channel:
