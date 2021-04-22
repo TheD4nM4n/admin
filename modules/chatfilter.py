@@ -4,7 +4,7 @@ import discord
 from better_profanity import profanity
 from discord.ext import commands
 
-from core import admin, save_configuration
+from core import admin
 
 
 def usage_embed() -> tuple:
@@ -65,7 +65,7 @@ class ChatFilterModule(commands.Cog):
                 "custom-words": [],
                 "whitelisted-channels": [],
             }
-            save_configuration(admin.config)
+            admin.save_configuration(admin.config)
 
         if guild_config["enabled"]:
 

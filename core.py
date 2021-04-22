@@ -6,31 +6,6 @@ from discord.ext import commands, tasks
 from discord import Intents
 
 
-def load_token() -> str:
-    # Returns the token stored in the "credentials.json" file.
-    with open("./credentials.json", "r") as credentials:
-        return json.load(credentials)["discord-token"]
-
-
-def load_default_configuration() -> dict:
-    # Returns the default configuration (for use in generating new server configurations)
-    with open("./data/serverconfig.json", "r") as stored_config:
-        return json.load(stored_config)["default"]
-
-
-def load_configuration() -> dict:
-    # Returns the configuration stored on disk.
-    with open("./data/serverconfig.json", "r", encoding="utf-8") as stored_config:
-        return json.load(stored_config)
-
-
-def save_configuration(config) -> None:
-    with open("./data/serverconfig.json", "w") as stored_config:
-        # This writes the configuration with the changes made to the disk.
-        json.dump(config, stored_config, indent=4)
-        stored_config.truncate()
-
-
 class AdminBot(commands.Bot):
 
     def __init__(self, **kwargs):
@@ -39,8 +14,10 @@ class AdminBot(commands.Bot):
                          activity=Activity(type=ActivityType.listening, name="-help"))
 
         self.remove_command("help")
-        self.config = load_configuration()
-        self.save_config.start()
+        self.config = self.load_configuration()
+        self.config_daemon.start()
+        with open("./credentials.json", "r") as credentials:
+            self.token = json.load(credentials)["discord-token"]
 
     async def on_ready(self):
         for module in os.listdir('./modules'):
@@ -50,7 +27,7 @@ class AdminBot(commands.Bot):
         for guild in self.guilds:
             if str(guild.id) not in self.config.keys():
                 # Loads the default config and modifies it to fit the server
-                default_config = load_default_configuration()
+                default_config = self.load_default_configuration()
                 if guild.system_channel:
                     default_config["greetings"]["channel"] = guild.system_channel.id
                 default_config["name"] = guild.name
@@ -59,13 +36,13 @@ class AdminBot(commands.Bot):
                 self.config[f"{guild.id}"] = default_config
 
         # Writes the new config to disk
-        save_configuration(self.config)
+        self.save_configuration(self.config)
 
     async def on_guild_join(self, guild: Guild) -> None:
 
         # If the server isn't in the config file, it loads the default config and modifies it to fit the server
         if str(guild.id) not in self.config.keys():
-            default_config = load_default_configuration()
+            default_config = self.load_default_configuration()
             default_config["greetings"]["channel"] = guild.system_channel.id
             default_config["name"] = guild.name
 
@@ -73,11 +50,30 @@ class AdminBot(commands.Bot):
             self.config[f"{guild.id}"] = default_config
 
             # Writes the new config to disk
-            save_configuration(self.config)
+            self.save_configuration(self.config)
+
+    @staticmethod
+    def load_default_configuration() -> dict:
+        # Returns the default configuration (for use in generating new server configurations)
+        with open("./data/serverconfig.json", "r") as stored_config:
+            return json.load(stored_config)["default"]
+
+    @staticmethod
+    def load_configuration() -> dict:
+        # Returns the configuration stored on disk.
+        with open("./data/serverconfig.json", "r", encoding="utf-8") as stored_config:
+            return json.load(stored_config)
+
+    @staticmethod
+    def save_configuration(config) -> None:
+        with open("./data/serverconfig.json", "w") as stored_config:
+            # This writes the configuration with the changes made to the disk.
+            json.dump(config, stored_config, indent=4)
+            stored_config.truncate()
 
     @tasks.loop(minutes=1.0)
-    async def save_config(self):
-        save_configuration(self.config)
+    async def config_daemon(self):
+        self.save_configuration(self.config)
 
 
 admin = AdminBot(command_prefix="-",
@@ -208,4 +204,4 @@ async def moderator_help(ctx: commands.Context):
 
 
 if __name__ == "__main__":
-    admin.run(load_token())
+    admin.run(admin.token)
