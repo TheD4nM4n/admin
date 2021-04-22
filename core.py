@@ -12,10 +12,11 @@ class AdminBot(commands.Bot):
         super().__init__(command_prefix=kwargs['command_prefix'],
                          intents=kwargs['intents'],
                          activity=Activity(type=ActivityType.listening, name="-help"))
-
         self.remove_command("help")
-        self.config = self.load_configuration()
-        self.config_daemon.start()
+        try:
+            self.config = self.load_configuration()
+        except FileNotFoundError:
+            self.config = {}
         with open("./botconfig.json", "r", encoding="utf-8") as credentials:
             credentials_json = json.load(credentials)
             self.token = credentials_json["discord-token"]
@@ -36,14 +37,15 @@ class AdminBot(commands.Bot):
 
                 # Adds the server to the config, with the above configuration
                 self.config[f"{guild.id}"] = default_config
-
         # Writes the new config to disk
         self.save_configuration(self.config)
+
+        self.config_daemon.start()
 
     async def on_guild_join(self, guild: Guild) -> None:
 
         # If the server isn't in the config file, it loads the default config and modifies it to fit the server
-        if str(guild.id) not in self.config.keys():
+        if str(guild.id) not in self.config:
             default_config = self.load_default_configuration()
             default_config["greetings"]["channel"] = guild.system_channel.id
             default_config["name"] = guild.name
@@ -57,8 +59,28 @@ class AdminBot(commands.Bot):
     @staticmethod
     def load_default_configuration() -> dict:
         # Returns the default configuration (for use in generating new server configurations)
-        with open("./data/serverconfig.json", "r") as stored_config:
-            return json.load(stored_config)["default"]
+        return {
+            "name": None,
+            "greetings": {
+                "enabled": True,
+                "channel": None
+            },
+            "reaction-roles": {
+                "enabled": True
+            },
+            "chat-filter": {
+                "enabled": True,
+                "log-channel": None,
+                "use-default-list": True,
+                "custom-words": [],
+                "whitelisted-channels": [],
+                "whitelisted-members": []
+            },
+            "mute": {
+                "enabled": True,
+                "muted-members": []
+            }
+        }
 
     @staticmethod
     def load_configuration() -> dict:
