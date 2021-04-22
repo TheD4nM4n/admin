@@ -8,32 +8,27 @@ import json
 import re
 
 
-def get_key(application):
-    with open("./credentials.json") as credentials:
+def get_rawg_key():
+    with open("./botconfig.json") as credentials:
         keys = json.load(credentials)
-        return keys[application]
+        return keys["rawg-key"]
 
 
-rawg = RAWG(get_key("rawg-key"))
+rawg = RAWG(get_rawg_key())
 db = Anilist()
 
 
 def beautify_for_description(raw_html):
-    text_without_br = raw_html.replace("<br>", "")
-    text_with_italics = text_without_br.replace("<i>", "*").replace("</i>", "*")
-    for_removal = re.compile('<.*?>')
-    cleaned_text = re.sub(for_removal, '', text_with_italics)
-    first_paragraph = cleaned_text.split("\n")[0]
-    final_text = first_paragraph[:375] + (first_paragraph[375:] and '... (cont.)')
+    formatted_text = raw_html.replace("<br>", "").replace("<i>", "*").replace("</i>", "*")
+    cleaned_text_paragraph = re.sub(re.compile('<.*?>'), '', formatted_text).split("\n")[0]
+    final_text = cleaned_text_paragraph[:375] + (cleaned_text_paragraph[375:] and '... (cont.)')
     return final_text
 
 
 def clean_text(raw_html):
     unescaped_html = unescape(raw_html)
-    cleaner = re.compile("<.*?>")
-    cleaner_text = re.sub(cleaner, '', unescaped_html)
-    cleanerer_text = cleaner_text[:225] + (cleaner_text[225:] and '...')
-    final_text = cleanerer_text.split("\n")[0]
+    cleaner_text = re.sub(re.compile("<.*?>"), '', unescaped_html)
+    final_text = (cleaner_text[:225] + (cleaner_text[225:] and '...')).split("\n")[0]
     return final_text
 
 
