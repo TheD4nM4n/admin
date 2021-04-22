@@ -16,8 +16,9 @@ class AdminBot(commands.Bot):
         self.remove_command("help")
         self.config = self.load_configuration()
         self.config_daemon.start()
-        with open("./credentials.json", "r") as credentials:
+        with open("./botconfig.json", "r") as credentials:
             self.token = json.load(credentials)["discord-token"]
+            self.administrators = json.load(credentials)["bot-administrators"]
 
     async def on_ready(self):
         for module in os.listdir('./modules'):
@@ -71,6 +72,9 @@ class AdminBot(commands.Bot):
             json.dump(config, stored_config, indent=4)
             stored_config.truncate()
 
+    async def bot_administrator_check(self, ctx):
+        return ctx.author.id in self.administrators
+
     @tasks.loop(minutes=1.0)
     async def config_daemon(self):
         self.save_configuration(self.config)
@@ -81,7 +85,7 @@ admin = AdminBot(command_prefix="-",
 
 
 @admin.command(description="Reloads the specified module, or all of them if no module is specified.")
-@commands.has_permissions(administrator=True)
+@commands.check(admin.bot_administrator_check)
 async def reload(ctx: commands.Context, module_name=None):
     if module_name is None:
 
@@ -110,7 +114,7 @@ async def reload(ctx: commands.Context, module_name=None):
 
 
 @admin.command(description="Lists all modules.")
-@commands.has_permissions(administrator=True)
+@commands.check(admin.bot_administrator_check)
 async def modules(ctx: commands.Context):
     active_modules = ''
     for admin_module in admin.extensions:
@@ -137,7 +141,7 @@ async def modules(ctx: commands.Context):
 
 
 @admin.command(description="Enables a module.")
-@commands.has_permissions(administrator=True)
+@commands.check(admin.bot_administrator_check)
 async def enable(ctx: commands.Context, module_name):
     if f"modules.{module_name}" not in admin.extensions:
         if f"{module_name.lower()}.py" in os.listdir("./modules"):
@@ -151,7 +155,7 @@ async def enable(ctx: commands.Context, module_name):
 
 
 @admin.command(description="Disables a module.")
-@commands.has_permissions(administrator=True)
+@commands.check(admin.bot_administrator_check)
 async def disable(ctx: commands.Context, module_name):
     if f"modules.{module_name.lower()}" in admin.extensions:
         admin.remove_cog(module_name.lower())
