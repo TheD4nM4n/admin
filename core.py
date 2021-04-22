@@ -16,9 +16,10 @@ class AdminBot(commands.Bot):
         self.remove_command("help")
         self.config = self.load_configuration()
         self.config_daemon.start()
-        with open("./botconfig.json", "r") as credentials:
-            self.token = json.load(credentials)["discord-token"]
-            self.administrators = json.load(credentials)["bot-administrators"]
+        with open("./botconfig.json", "r", encoding="utf-8") as credentials:
+            credentials_json = json.load(credentials)
+            self.token = credentials_json["discord-token"]
+            self.administrators = credentials_json["bot-administrators"]
 
     async def on_ready(self):
         for module in os.listdir('./modules'):
@@ -127,7 +128,8 @@ async def modules(ctx: commands.Context):
                 inactive_modules += f"{admin_module[:-3]}\n"
 
     embed = Embed(title="Module List",
-                  description="This is where you can see everything I do!")
+                  description="This is where you can see everything I do!",
+                  color=0xff0000)
 
     if len(active_modules) > 0:
         embed.add_field(name=f"There are **{len(admin.extensions)}** active modules:",
