@@ -47,12 +47,13 @@ class ChatFilterModule(commands.Cog):
             return True
         elif message.author.id == self.bot.user.id:
             return True
+        elif isinstance(message.author, discord.User):
+            return True
         else:
             return False
 
     @commands.Cog.listener("on_message")
     async def chat_filter(self, message: discord.Message) -> None:
-
         # Loads the chat filter configuration of the server the message was sent
         try:
             guild_config = admin.config[f"{message.guild.id}"]["chat-filter"]
