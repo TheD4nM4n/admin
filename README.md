@@ -48,4 +48,4 @@ With a focus on education, Admin includes powerful moderation tools to keep your
     
 ## Licensing
 
-This software is open-source under the *GNU General Public License* (version 3), and all of its contents fall under said license. License can be found in COPYING.txt.
+This software is open-source under the *GNU General Public License* (version 3), and all of its contents fall under said license. License can be found in COPYING.txt...
