@@ -1,9 +1,7 @@
-import os
-import json
-
-from discord import Embed, File, Guild, Activity, ActivityType
+from os import listdir
+from json import load, dump
+from discord import Embed, File, Guild, Activity, ActivityType, Intents
 from discord.ext import commands, tasks
-from discord import Intents
 
 
 class AdminBot(commands.Bot):
@@ -18,19 +16,20 @@ class AdminBot(commands.Bot):
         except FileNotFoundError:
             self.config = {}
         with open("./botconfig.json", "r", encoding="utf-8") as credentials:
-            credentials_json = json.load(credentials)
-            self.token = credentials_json["discord-token"]
-            self.administrators = credentials_json["bot-administrators"]
+            config_json = load(credentials)
+            self.token = config_json["discord-token"]
+            self.administrators = config_json["bot-administrators"]
+            self.rawg_key = config_json["rawg-key"]
 
     async def on_ready(self):
-        for module in os.listdir('./modules'):
+        for module in listdir('./modules'):
             if module.endswith('.py'):
                 self.load_extension(f'modules.{module[:-3]}')
 
         for guild in self.guilds:
             if guild.id not in self.config:
                 # Loads the default config and modifies it to fit the server
-                default_config = self.load_default_configuration()
+                default_config = self.default_configuration
                 if guild.system_channel:
                     default_config["greetings"]["channel"] = guild.system_channel.id
                 default_config["name"] = guild.name
@@ -46,7 +45,7 @@ class AdminBot(commands.Bot):
 
         # If the server isn't in the config file, it loads the default config and modifies it to fit the server
         if str(guild.id) not in self.config:
-            default_config = self.load_default_configuration()
+            default_config = self.default_configuration
             default_config["greetings"]["channel"] = guild.system_channel.id
             default_config["name"] = guild.name
 
@@ -56,8 +55,8 @@ class AdminBot(commands.Bot):
             # Writes the new config to disk
             self.save_configuration(self.config)
 
-    @staticmethod
-    def load_default_configuration() -> dict:
+    @property
+    def default_configuration(self) -> dict:
         # Returns the default configuration (for use in generating new server configurations)
         return {
             "name": None,
@@ -86,13 +85,13 @@ class AdminBot(commands.Bot):
     def load_configuration() -> dict:
         # Returns the configuration stored on disk.
         with open("./data/serverconfig.json", "r", encoding="utf-8") as stored_config:
-            return json.load(stored_config)
+            return load(stored_config)
 
     @staticmethod
     def save_configuration(config) -> None:
         with open("./data/serverconfig.json", "w") as stored_config:
             # This writes the configuration with the changes made to the disk.
-            json.dump(config, stored_config, indent=4)
+            dump(config, stored_config, indent=4)
             stored_config.truncate()
 
     async def bot_administrator_check(self, ctx):
@@ -117,7 +116,7 @@ async def reload(ctx: commands.Context, module_name=None):
         for module_title in active_modules:
             admin.unload_extension(module_title)
 
-        for module_title in os.listdir("./modules"):
+        for module_title in listdir("./modules"):
             if module_title.endswith(".py"):
                 admin.load_extension(f"modules.{module_title[:-3]}")
 
@@ -144,7 +143,7 @@ async def modules(ctx: commands.Context):
         active_modules += f"{admin_module[8:]}\n"
 
     inactive_modules = ''
-    for admin_module in os.listdir("./modules"):
+    for admin_module in listdir("./modules"):
         if admin_module.endswith(".py"):
             if f"modules.{admin_module[:-3]}" not in admin.extensions:
                 inactive_modules += f"{admin_module[:-3]}\n"
@@ -168,7 +167,7 @@ async def modules(ctx: commands.Context):
 @commands.check(admin.bot_administrator_check)
 async def enable(ctx: commands.Context, module_name):
     if f"modules.{module_name}" not in admin.extensions:
-        if f"{module_name.lower()}.py" in os.listdir("./modules"):
+        if f"{module_name.lower()}.py" in listdir("./modules"):
             admin.load_extension(f"modules.{module_name.lower()}")
             await ctx.message.add_reaction("✅")
         else:
