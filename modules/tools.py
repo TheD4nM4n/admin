@@ -1,6 +1,6 @@
 from discord import Message, Embed
 from discord.ext import commands
-import asyncio
+from asyncio import TimeoutError
 
 COLORS = {
     "red": 0xff0000,
@@ -20,12 +20,12 @@ class ToolsModule(commands.Cog):
         print("'Tools' module loaded.")
 
     @commands.group(description="Makes items.")
-    @commands.has_permissions(administrator=True)
+    @commands.check_any(commands.has_permissions(manage_guild=True), commands.has_permissions(manage_webhooks=True))
     async def make(self, ctx):
         pass
 
     @make.command(description="Makes an embed. Denote the beginning of the description using a '|' symbol.")
-    @commands.has_permissions(administrator=True)
+    @commands.check_any(commands.has_permissions(manage_guild=True), commands.has_permissions(manage_webhooks=True))
     async def embed(self, ctx: commands.Context, color: str = "red", *, content: str):
 
         # Check function for seeing if the message sent is valid
@@ -62,6 +62,7 @@ class ToolsModule(commands.Cog):
         await ctx.send(embed=embed)
 
     @make.group(name="server")
+    @commands.check_any(commands.has_permissions(administrator=True))
     @commands.has_permissions(administrator=True)
     async def make_server(self, ctx: commands.Context):
         pass
@@ -77,7 +78,7 @@ class ToolsModule(commands.Cog):
         elif isinstance(error, IndexError):
             await ctx.send("You didn't separate your title and description correctly! Use a | symbol to separate the "
                            "title and description. Try again!")
-        elif isinstance(error, asyncio.TimeoutError):
+        elif isinstance(error, TimeoutError):
             await ctx.send("The construction has timed out, and as such has been cancelled. Try again!")
 
 

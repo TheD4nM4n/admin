@@ -35,7 +35,7 @@ class ReactionRolesModule(commands.Cog):
         pass
 
     @role.command(name="all")
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_roles=True)
     async def role_all(self, ctx: commands.Context, role: Role):
 
         async with ctx.typing():

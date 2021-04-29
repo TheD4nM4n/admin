@@ -36,8 +36,10 @@ class GreetingsModule(commands.Cog):
             await greeting_channel.send(message)
 
     @commands.command(description="Allows configuration of the greetings of new users in your server.")
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
     async def greetings(self, ctx: commands.Context, intent=None, channel: TextChannel = None):
+
+        # TODO: Convert greetings to a command group
 
         guild_config = admin.config[f"{ctx.guild.id}"]["greetings"]
 

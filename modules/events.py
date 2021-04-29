@@ -12,7 +12,7 @@ class EventsModule(commands.Cog):
         print("'Events' module loaded.")
 
     @commands.command(description="A powerful set of tools for running giveaways.")
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
     async def giveaway(self, ctx: commands.Context, intent=None, role: Role = None) -> None:
 
         if intent:

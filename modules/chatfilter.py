@@ -131,7 +131,7 @@ class ChatFilterModule(commands.Cog):
     @commands.group(name="filter",
                     description="Allows the configuration of the chat filter in this server.",
                     invoke_without_command=True)
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_messages=True)
     async def filter_command(self, ctx: commands.Context):
 
         file = File(fp="./assets/vgctired.png", filename="vgctired.png")
@@ -165,6 +165,7 @@ class ChatFilterModule(commands.Cog):
         return
 
     @filter_command.command(name="enable")
+    @commands.has_permissions(manage_messages=True)
     async def enable_filter(self, ctx: commands.Context):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
@@ -174,6 +175,7 @@ class ChatFilterModule(commands.Cog):
         return
 
     @filter_command.command(name="disable")
+    @commands.has_permissions(manage_messages=True)
     async def disable_filter(self, ctx: commands.Context):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
@@ -183,6 +185,7 @@ class ChatFilterModule(commands.Cog):
         return
 
     @filter_command.command(name="log")
+    @commands.has_permissions(manage_messages=True)
     async def filter_log(self, ctx: commands.Context, channel):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
@@ -218,6 +221,7 @@ class ChatFilterModule(commands.Cog):
             return
 
     @filter_command.command(name="add")
+    @commands.has_permissions(manage_messages=True)
     async def add_word(self, ctx: commands.Context, word):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
@@ -241,6 +245,7 @@ class ChatFilterModule(commands.Cog):
             return
 
     @filter_command.command(name="remove")
+    @commands.has_permissions(manage_messages=True)
     async def remove_word(self, ctx: commands.Context, word):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
@@ -273,6 +278,7 @@ class ChatFilterModule(commands.Cog):
             return
 
     @filter_command.command(name="list")
+    @commands.has_permissions(manage_messages=True)
     async def send_custom_list(self, ctx: commands.Context):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
@@ -303,10 +309,12 @@ class ChatFilterModule(commands.Cog):
             return
 
     @filter_command.group(name="default")
+    @commands.has_permissions(manage_messages=True)
     async def default_filter_list(self, ctx: commands.Context):
         pass
 
     @default_filter_list.command(name="enable")
+    @commands.has_permissions(manage_messages=True)
     async def enable_default_list(self, ctx: commands.Context):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
@@ -316,6 +324,7 @@ class ChatFilterModule(commands.Cog):
         return
 
     @default_filter_list.command(name="disable")
+    @commands.has_permissions(manage_messages=True)
     async def disable_default_list(self, ctx: commands.Context):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
@@ -325,8 +334,10 @@ class ChatFilterModule(commands.Cog):
         return
 
     @commands.command(description="Add/remove users or channels to the server whitelist.")
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_messages=True)
     async def whitelist(self, ctx, intent=None, element=None) -> None:
+
+        # TODO: Convert whitelist to a command group
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
