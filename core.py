@@ -138,9 +138,7 @@ async def reload(ctx: commands.Context, module_name=None):
 @admin.command(description="Lists all modules.")
 @commands.check(admin.bot_administrator_check)
 async def modules(ctx: commands.Context):
-    active_modules = ''
-    for admin_module in admin.extensions:
-        active_modules += f"{admin_module[8:]}\n"
+    active_modules = "\n".join(admin.extensions)
 
     inactive_modules = ''
     for admin_module in listdir("./modules"):
