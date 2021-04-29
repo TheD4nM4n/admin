@@ -9,8 +9,8 @@ class AdminBot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(command_prefix=kwargs['command_prefix'],
                          intents=kwargs['intents'],
-                         activity=Activity(type=ActivityType.listening, name="-help"))
-        self.remove_command("help")
+                         activity=Activity(type=ActivityType.listening, name="-help"),
+                         help_command=None)
         try:
             self.config = self.load_configuration()
         except FileNotFoundError:
