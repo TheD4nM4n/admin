@@ -18,7 +18,7 @@ class AdminBot(commands.Bot):
         with open("./botconfig.json", "r", encoding="utf-8") as credentials:
             config_json = load(credentials)
             self.token = config_json["discord-token"]
-            self.administrators = config_json["bot-administrators"]
+            self.owner_ids = config_json["bot-administrators"]
             self.rawg_key = config_json["rawg-key"]
 
     async def on_ready(self):
@@ -94,8 +94,8 @@ class AdminBot(commands.Bot):
             dump(config, stored_config, indent=4)
             stored_config.truncate()
 
-    async def bot_administrator_check(self, ctx):
-        return ctx.author.id in self.administrators
+    async def owner_check(self, ctx):
+        return commands.is_owner(ctx.author.id)
 
     @tasks.loop(minutes=1.0)
     async def config_daemon(self):
@@ -107,7 +107,7 @@ admin = AdminBot(command_prefix="-",
 
 
 @admin.command(description="Reloads the specified module, or all of them if no module is specified.")
-@commands.check(admin.bot_administrator_check)
+@commands.check(admin.owner_check)
 async def reload(ctx: commands.Context, module_name=None):
     if module_name is None:
 
@@ -136,7 +136,7 @@ async def reload(ctx: commands.Context, module_name=None):
 
 
 @admin.command(description="Lists all modules.")
-@commands.check(admin.bot_administrator_check)
+@commands.check(admin.owner_check)
 async def modules(ctx: commands.Context):
     active_modules = "\n".join(admin.extensions)
 
@@ -162,7 +162,7 @@ async def modules(ctx: commands.Context):
 
 
 @admin.command(description="Enables a module.")
-@commands.check(admin.bot_administrator_check)
+@commands.check(admin.owner_check)
 async def enable(ctx: commands.Context, module_name):
     if f"modules.{module_name}" not in admin.extensions:
         if f"{module_name.lower()}.py" in listdir("./modules"):
@@ -176,7 +176,7 @@ async def enable(ctx: commands.Context, module_name):
 
 
 @admin.command(description="Disables a module.")
-@commands.check(admin.bot_administrator_check)
+@commands.check(admin.owner_check)
 async def disable(ctx: commands.Context, module_name):
     if f"modules.{module_name.lower()}" in admin.extensions:
         admin.remove_cog(module_name.lower())
