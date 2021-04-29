@@ -1,5 +1,5 @@
 import json
-import discord
+from discord import TextChannel, File, Embed
 from discord.ext import commands
 from random import choice
 from core import admin
@@ -11,7 +11,7 @@ class GreetingsModule(commands.Cog):
         self.bot = bot
         print("'Greetings' module loaded.")
 
-        # This loads the preset messages in welcomeconfig.json.
+        # This loads the preset messages in greetings.json.
         with open("./data/greetings.json", "r") as messages:
             self.messages = json.load(messages)['messages']
 
@@ -37,7 +37,7 @@ class GreetingsModule(commands.Cog):
 
     @commands.command(description="Allows configuration of the greetings of new users in your server.")
     @commands.has_permissions(administrator=True)
-    async def greetings(self, ctx: commands.Context, intent=None, channel: discord.TextChannel = None):
+    async def greetings(self, ctx: commands.Context, intent=None, channel: TextChannel = None):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["greetings"]
 
@@ -66,10 +66,10 @@ class GreetingsModule(commands.Cog):
             else:
 
                 # Constructing the error embedded message
-                file = discord.File(fp="./assets/vgcsad.png", filename="vgcsad.png")
-                embed = discord.Embed(title="Sorry, that isn't a valid use of the **greetings** command.",
-                                      description="Try sending *-greetings* to see valid uses!",
-                                      color=0xff0000)
+                file = File(fp="./assets/vgcsad.png", filename="vgcsad.png")
+                embed = Embed(title="Sorry, that isn't a valid use of the **greetings** command.",
+                              description="Try sending *-greetings* to see valid uses!",
+                              color=0xff0000)
                 embed.set_thumbnail(url="attachment://vgcsad.png")
 
                 # Sending da embed
@@ -78,10 +78,10 @@ class GreetingsModule(commands.Cog):
         else:
 
             # Constructing the "welcome usage" embedded message
-            file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
-            embed = discord.Embed(title="greetings",
-                                  description="Helps you take control of your greeting messages.",
-                                  color=0xff0000)
+            file = File(fp="./assets/vgctired.png", filename="vgctired.png")
+            embed = Embed(title="greetings",
+                          description="Helps you take control of your greeting messages.",
+                          color=0xff0000)
             embed.set_thumbnail(url="attachment://vgctired.png")
             embed.add_field(name="Intents",
                             value="To use these, execute 'greetings *intent*'. Some intents may require arguments, "

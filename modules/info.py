@@ -3,31 +3,23 @@ from discord.ext import commands
 from rawgpy import RAWG
 from html import unescape
 from Pymoe import Anilist
+from core import admin
+from re import sub, compile
 
-import json
-import re
-
-
-def get_rawg_key():
-    with open("./botconfig.json") as credentials:
-        keys = json.load(credentials)
-        return keys["rawg-key"]
-
-
-rawg = RAWG(get_rawg_key())
+rawg = RAWG(admin.rawg_key)
 db = Anilist()
 
 
 def beautify_for_description(raw_html):
     formatted_text = raw_html.replace("<br>", "").replace("<i>", "*").replace("</i>", "*")
-    cleaned_text_paragraph = re.sub(re.compile('<.*?>'), '', formatted_text).split("\n")[0]
+    cleaned_text_paragraph = sub(compile('<.*?>'), '', formatted_text).split("\n")[0]
     final_text = cleaned_text_paragraph[:375] + (cleaned_text_paragraph[375:] and '... (cont.)')
     return final_text
 
 
 def clean_text(raw_html):
     unescaped_html = unescape(raw_html)
-    cleaner_text = re.sub(re.compile("<.*?>"), '', unescaped_html)
+    cleaner_text = sub(compile("<.*?>"), '', unescaped_html)
     final_text = (cleaner_text[:225] + (cleaner_text[225:] and '...')).split("\n")[0]
     return final_text
 
@@ -40,7 +32,7 @@ def get_game(name):
 
     # Prepares name for screenshot GET request
     name_with_underscores = game.name.lower().replace(" ", "-")
-    final_name = re.sub("[^\\w-]+", "", name_with_underscores)
+    final_name = sub("[^\\w-]+", "", name_with_underscores)
 
     # Gets screenshots of game
     photos = rawg.get_request(url=f"https://api.rawg.io/api/games/{final_name}/screenshots")

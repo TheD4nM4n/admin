@@ -1,4 +1,4 @@
-import discord
+from discord import Member
 from discord.ext import commands
 from core import admin
 
@@ -37,7 +37,7 @@ class ModerationModule(commands.Cog):
     @commands.group(description="Immediately deletes further messages from the user specified until disabled.",
                     invoke_without_command=True)
     @commands.has_permissions(administrator=True)
-    async def mute(self, ctx: commands.Context, intent=None, member: discord.Member = None):
+    async def mute(self, ctx: commands.Context, intent=None, member: Member = None):
         guild_config = admin.config[f"{ctx.guild.id}"]["mute"]
 
         if intent:
@@ -46,7 +46,7 @@ class ModerationModule(commands.Cog):
                 return await ctx.message.add_reaction("✅")
 
     @mute.command(name="add")
-    async def mute_add(self, ctx: commands.Context, member: discord.Member):
+    async def mute_add(self, ctx: commands.Context, member: Member):
 
         # Makes an easier to use pointer to specific section of config
         guild_config = admin.config[f"{ctx.guild.id}"]["mute"]
@@ -58,7 +58,7 @@ class ModerationModule(commands.Cog):
         return await ctx.message.add_reaction("✅")
 
     @mute.command(name="remove")
-    async def mute_remove(self, ctx: commands.Context, member: discord.Member):
+    async def mute_remove(self, ctx: commands.Context, member: Member):
 
         # Makes an easier to use pointer to specific section of config
         guild_config = admin.config[f"{ctx.guild.id}"]["mute"]

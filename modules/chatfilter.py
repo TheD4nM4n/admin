@@ -1,6 +1,6 @@
 from re import sub
 
-import discord
+from discord import User, File, Embed, Message
 from better_profanity import profanity
 from discord.ext import commands
 
@@ -8,10 +8,10 @@ from core import admin
 
 
 def usage_embed() -> tuple:
-    file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
-    embed = discord.Embed(title="filter",
-                          description="Provides helpful settings for your chat filter.",
-                          color=0xff0000)
+    file = File(fp="./assets/vgctired.png", filename="vgctired.png")
+    embed = Embed(title="filter",
+                  description="Provides helpful settings for your chat filter.",
+                  color=0xff0000)
     embed.set_thumbnail(url="attachment://vgctired.png")
     embed.add_field(name="Intents",
                     value="To use these, execute 'filter *intent*'. Some intents may require arguments, "
@@ -47,13 +47,13 @@ class ChatFilterModule(commands.Cog):
             return True
         elif message.author.id == self.bot.user.id:
             return True
-        elif isinstance(message.author, discord.User):
+        elif isinstance(message.author, User):
             return True
         else:
             return False
 
     @commands.Cog.listener("on_message")
-    async def chat_filter(self, message: discord.Message) -> None:
+    async def chat_filter(self, message: Message) -> None:
         # Loads the chat filter configuration of the server the message was sent
         try:
             guild_config = admin.config[f"{message.guild.id}"]["chat-filter"]
@@ -90,11 +90,11 @@ class ChatFilterModule(commands.Cog):
 
                             # If the server has a log channel set, build an embed and send it.
                             if guild_config["log-channel"]:
-                                file = discord.File("./assets/vgcdisgusting.png")
-                                embed = discord.Embed(title="I have deleted a message from a channel.",
-                                                      description=f"Offender: {message.author.name}\n"
-                                                                  f"Channel: {message.channel}\n",
-                                                      color=0xff0000)
+                                file = File("./assets/vgcdisgusting.png")
+                                embed = Embed(title="I have deleted a message from a channel.",
+                                              description=f"Offender: {message.author.name}\n"
+                                                          f"Channel: {message.channel}\n",
+                                              color=0xff0000)
                                 embed.add_field(name="Message content:", value=text_without_formatting)
                                 embed.set_thumbnail(url="attachment://vgcdisgusting.png")
 
@@ -114,11 +114,11 @@ class ChatFilterModule(commands.Cog):
 
                             # If the server has a log channel set, build an embed and send it.
                             if guild_config["log-channel"]:
-                                file = discord.File("./assets/vgcdisgusting.png")
-                                embed = discord.Embed(title="I have deleted a message from a channel.",
-                                                      description=f"Offender: {message.author.name}\n"
-                                                                  f"Channel: {message.channel}\n",
-                                                      color=0xff0000)
+                                file = File("./assets/vgcdisgusting.png")
+                                embed = Embed(title="I have deleted a message from a channel.",
+                                              description=f"Offender: {message.author.name}\n"
+                                                          f"Channel: {message.channel}\n",
+                                              color=0xff0000)
                                 embed.add_field(name="Message content:", value=message.content)
                                 embed.add_field(name="Filtered content:",
                                                 value=profanity.censor(text_without_formatting, "#"))
@@ -134,10 +134,10 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def filter_command(self, ctx: commands.Context):
 
-        file = discord.File(fp="./assets/vgctired.png", filename="vgctired.png")
-        embed = discord.Embed(title="filter",
-                              description="Provides helpful settings for your chat filter.",
-                              color=0xff0000)
+        file = File(fp="./assets/vgctired.png", filename="vgctired.png")
+        embed = Embed(title="filter",
+                      description="Provides helpful settings for your chat filter.",
+                      color=0xff0000)
 
         embed.set_thumbnail(url="attachment://vgctired.png")
 
@@ -207,12 +207,12 @@ class ChatFilterModule(commands.Cog):
         # If a channel or "none" isn't given
         if isinstance(error, commands.MissingRequiredArgument):
             # Sends an embed telling the user to try again.
-            file = discord.File(fp="./assets/vgcsad.png")
-            embed = discord.Embed(title="Sorry, something went wrong...",
-                                  description="There was no channel mentioned in that message. Make sure "
-                                              "you use the hashtag (#) to properly mention the channel. "
-                                              "Go ahead and try again!",
-                                  color=0xff0000)
+            file = File(fp="./assets/vgcsad.png")
+            embed = Embed(title="Sorry, something went wrong...",
+                          description="There was no channel mentioned in that message. Make sure "
+                                      "you use the hashtag (#) to properly mention the channel. "
+                                      "Go ahead and try again!",
+                          color=0xff0000)
             embed.set_thumbnail(url="attachment://vgcsad.png")
             await ctx.send(file=file, embed=embed)
             return
@@ -231,11 +231,11 @@ class ChatFilterModule(commands.Cog):
         error = getattr(error, "original", error)
 
         if isinstance(error, commands.MissingRequiredArgument):
-            file = discord.File(fp="./assets/vgcsad.png")
-            embed = discord.Embed(title="Sorry, something went wrong...",
-                                  description="It looks like you didn't provide a word. Try again with a "
-                                              "word, like *filter add admin*.",
-                                  color=0xff0000)
+            file = File(fp="./assets/vgcsad.png")
+            embed = Embed(title="Sorry, something went wrong...",
+                          description="It looks like you didn't provide a word. Try again with a "
+                                      "word, like *filter add admin*.",
+                          color=0xff0000)
             embed.set_thumbnail(url="attachment://vgcsad.png")
             await ctx.send(file=file, embed=embed)
             return
@@ -254,20 +254,20 @@ class ChatFilterModule(commands.Cog):
         error = getattr(error, "original", error)
 
         if isinstance(error, commands.MissingRequiredArgument):
-            file = discord.File(fp="./assets/vgcsad.png")
-            embed = discord.Embed(title="Sorry, something went wrong...",
-                                  description="It looks like you didn't provide a word. Try again with a "
-                                              "word, like *filter remove admin*.",
-                                  color=0xff0000)
+            file = File(fp="./assets/vgcsad.png")
+            embed = Embed(title="Sorry, something went wrong...",
+                          description="It looks like you didn't provide a word. Try again with a "
+                                      "word, like *filter remove admin*.",
+                          color=0xff0000)
             embed.set_thumbnail(url="attachment://vgcsad.png")
             await ctx.send(file=file, embed=embed)
             return
         elif isinstance(error, ValueError):
-            file = discord.File(fp="./assets/vgcyes.png")
-            embed = discord.Embed(title="That word wasn't found...",
-                                  description="Looks like you didn't need to run that command, "
-                                              "because that word isn't in your server's list!",
-                                  color=0xff0000)
+            file = File(fp="./assets/vgcyes.png")
+            embed = Embed(title="That word wasn't found...",
+                          description="Looks like you didn't need to run that command, "
+                                      "because that word isn't in your server's list!",
+                          color=0xff0000)
             embed.set_thumbnail(url="attachment://vgcyes.png")
             await ctx.send(file=file, embed=embed)
             return
@@ -278,9 +278,9 @@ class ChatFilterModule(commands.Cog):
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if guild_config["custom-words"]:
-            embed = discord.Embed(title="Custom Words",
-                                  description="These words are filtered from chat within this server.",
-                                  color=0xff0000)
+            embed = Embed(title="Custom Words",
+                          description="These words are filtered from chat within this server.",
+                          color=0xff0000)
 
             string_of_words = str()
 
@@ -294,9 +294,9 @@ class ChatFilterModule(commands.Cog):
             return
 
         else:
-            embed = discord.Embed(title="Custom Words",
-                                  description="These words are filtered from chat within this server.\n\u200B",
-                                  color=0xff0000)
+            embed = Embed(title="Custom Words",
+                          description="These words are filtered from chat within this server.\n\u200B",
+                          color=0xff0000)
             embed.add_field(name="There are no words in this list!",
                             value="Use *filter add* to add words.")
             await ctx.send(embed=embed)

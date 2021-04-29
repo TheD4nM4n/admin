@@ -1,5 +1,5 @@
-import discord
-
+from discord import File, Embed, Role
+from discord.utils import get
 from discord.ext import commands
 from core import admin
 
@@ -25,7 +25,7 @@ class ReactionRolesModule(commands.Cog):
 
             if reaction.emoji.name in reaction_role_pairs.keys():
                 guild = self.bot.get_guild(reaction.guild_id)
-                role = discord.utils.get(guild.roles, id=reaction_role_pairs[f"{reaction.emoji.name}"])
+                role = get(guild.roles, id=reaction_role_pairs[f"{reaction.emoji.name}"])
 
                 await reaction.member.add_roles(role)
 
@@ -36,7 +36,7 @@ class ReactionRolesModule(commands.Cog):
 
     @role.command(name="all")
     @commands.has_permissions(administrator=True)
-    async def role_all(self, ctx: commands.Context, role: discord.Role):
+    async def role_all(self, ctx: commands.Context, role: Role):
 
         async with ctx.typing():
 
@@ -48,11 +48,11 @@ class ReactionRolesModule(commands.Cog):
                     await member.add_roles(role)
                     number_of_roles_given += 1
 
-            file = discord.File(fp="./assets/vgcrollsafe.png")
-            embed = discord.Embed(title="Mass role assignment done!",
-                                  description=f"Added the role {role.mention} to {number_of_roles_given}"
-                                              f"members, with {number_of_errors} errors.",
-                                  color=0xff0000)
+            file = File(fp="./assets/vgcrollsafe.png")
+            embed = Embed(title="Mass role assignment done!",
+                          description=f"Added the role {role.mention} to {number_of_roles_given}"
+                                      f"members, with {number_of_errors} errors.",
+                          color=0xff0000)
             embed.set_thumbnail(url="attachment://vgcrollsafe.png")
 
         await ctx.send(file=file, embed=embed)
@@ -72,7 +72,7 @@ class ReactionRolesModule(commands.Cog):
 
     @role.group(description="Gives the role provided (if the role is available as a self serve).",
                 invoke_without_command=True)
-    async def give(self, ctx: commands.Context, role: discord.Role):
+    async def give(self, ctx: commands.Context, role: Role):
 
         # Loads the list of roles allowed to be self-served
         self_serve_roles = admin.config[f"{ctx.guild.id}"]["self-serve"]
@@ -94,9 +94,9 @@ class ReactionRolesModule(commands.Cog):
         if self_serve_roles:
             for role_id in self_serve_roles:
                 string_of_roles += ctx.guild.get_role(role_id).mention + "\n"
-            embed = discord.Embed(title="Self-Serve List",
-                                  description=string_of_roles,
-                                  color=0xff0000)
+            embed = Embed(title="Self-Serve List",
+                          description=string_of_roles,
+                          color=0xff0000)
             embed.add_field(name="To get any of these roles, use the command below:",
                             value="*role give @role*")
             await ctx.send(embed=embed)

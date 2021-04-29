@@ -1,4 +1,4 @@
-import discord
+from discord import Message, Embed
 from discord.ext import commands
 import asyncio
 
@@ -29,7 +29,7 @@ class ToolsModule(commands.Cog):
     async def embed(self, ctx: commands.Context, color: str = "red", *, content: str):
 
         # Check function for seeing if the message sent is valid
-        def check(msg: discord.Message) -> bool:
+        def check(msg: Message) -> bool:
             return msg.author == ctx.message.author and msg.channel == ctx.channel
 
         # Fetches color from the dictionary, and splits the content into it's title and description
@@ -39,9 +39,9 @@ class ToolsModule(commands.Cog):
         # We aren't finished yet!
         finished = False
 
-        embed = discord.Embed(title=split_message[0],
-                              description=split_message[1],
-                              color=html_color)
+        embed = Embed(title=split_message[0],
+                      description=split_message[1],
+                      color=html_color)
 
         await ctx.send("Construction started! To continue adding fields, follow the initial formatting *name|value* "
                        "in new messages, then send *done* when complete.\n*Note: The construction will time out 60 "
@@ -49,7 +49,7 @@ class ToolsModule(commands.Cog):
 
         while not finished:
 
-            message: discord.Message = await self.bot.wait_for('message', check=check, timeout=60)
+            message: Message = await self.bot.wait_for('message', check=check, timeout=60)
 
             if message.content.lower() == "done":
                 finished = True
