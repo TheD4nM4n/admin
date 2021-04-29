@@ -69,10 +69,9 @@ class ModerationModule(commands.Cog):
     @mute_add.error
     @mute_remove.error
     async def mute_error(self, ctx, error):
-        print(error)
-        if isinstance(error, commands.CommandInvokeError):
-            if isinstance(error.original, MemberAlreadyAssigned):
-                await ctx.send("That member is already muted. Did you mean to remove them?")
+        error = getattr(error, "original", error)
+        if isinstance(error, MemberAlreadyAssigned):
+            await ctx.send("That member is already muted. Did you mean to remove them?")
 
 
 def setup(bot):
