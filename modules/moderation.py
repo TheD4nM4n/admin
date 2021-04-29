@@ -10,7 +10,7 @@ class MemberAlreadyAssigned(Exception):
 class ModerationModule(commands.Cog):
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         print("'Moderation' module loaded.")
 
     @commands.Cog.listener("on_message")
@@ -25,18 +25,15 @@ class ModerationModule(commands.Cog):
 
     @commands.command(description="Deletes the number of messages specified, starting at the most recent (includes "
                                   "the message used to invoke the command).")
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx: commands.Context, number: int):
-        messages = await ctx.channel.history(limit=number + 1).flatten()
 
-        for message in messages:
-            await message.delete()
-
-        await ctx.send(f"Deleted {len(messages)} messages.")
+        deleted_messages = await ctx.channel.purge(limit=number+1)
+        await ctx.send(f"Deleted {len(deleted_messages)} messages.")
 
     @commands.group(description="Immediately deletes further messages from the user specified until disabled.",
                     invoke_without_command=True)
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_messages=True)
     async def mute(self, ctx: commands.Context, intent=None, member: Member = None):
         guild_config = admin.config[f"{ctx.guild.id}"]["mute"]
 
@@ -46,6 +43,7 @@ class ModerationModule(commands.Cog):
                 return await ctx.message.add_reaction("✅")
 
     @mute.command(name="add")
+    @commands.has_permissions(manage_messages=True)
     async def mute_add(self, ctx: commands.Context, member: Member):
 
         # Makes an easier to use pointer to specific section of config
@@ -58,6 +56,7 @@ class ModerationModule(commands.Cog):
         return await ctx.message.add_reaction("✅")
 
     @mute.command(name="remove")
+    @commands.has_permissions(manage_messages=True)
     async def mute_remove(self, ctx: commands.Context, member: Member):
 
         # Makes an easier to use pointer to specific section of config
