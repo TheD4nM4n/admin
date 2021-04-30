@@ -223,7 +223,7 @@ class ChatFilterModule(commands.Cog):
 
     @filter_command.command(name="add")
     @commands.has_permissions(manage_messages=True)
-    async def add_word(self, ctx: commands.Context, word):
+    async def add_blacklist_word(self, ctx: commands.Context, word):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
@@ -247,7 +247,7 @@ class ChatFilterModule(commands.Cog):
 
     @filter_command.command(name="remove")
     @commands.has_permissions(manage_messages=True)
-    async def remove_word(self, ctx: commands.Context, word):
+    async def remove_blacklist_word(self, ctx: commands.Context, word):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
@@ -280,7 +280,7 @@ class ChatFilterModule(commands.Cog):
 
     @filter_command.command(name="list")
     @commands.has_permissions(manage_messages=True)
-    async def send_custom_list(self, ctx: commands.Context):
+    async def send_custom_blacklist(self, ctx: commands.Context):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
