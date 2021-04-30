@@ -1,5 +1,6 @@
 from re import sub
 
+import discord
 from discord import User, File, Embed, Message
 from better_profanity import profanity
 from discord.ext import commands
@@ -43,7 +44,7 @@ class ChatFilterModule(commands.Cog):
 
         if message.author.id in admin.config[f"{message.guild.id}"]["chat-filter"]["whitelisted-members"]:
             return True
-        elif message.channel in admin.config[f"{message.guild.id}"]["chat-filter"]["whitelisted-members"]:
+        elif message.channel.id in admin.config[f"{message.guild.id}"]["chat-filter"]["whitelisted-channels"]:
             return True
         elif message.author.id == self.bot.user.id:
             return True
@@ -333,60 +334,61 @@ class ChatFilterModule(commands.Cog):
         await ctx.message.add_reaction("✅")
         return
 
-    @commands.command(description="Add/remove users or channels to the server whitelist.")
+    @commands.group(description="Add/remove users or channels to the server whitelist.",
+                    invoke_without_command=True)
     @commands.has_permissions(manage_messages=True)
     async def whitelist(self, ctx, intent=None, element=None) -> None:
 
-        # TODO: Convert whitelist to a command group
+        # TODO: Usage embed
+        pass
+
+    @whitelist.group(name="add",
+                     invoke_without_command=True)
+    async def whitelist_add(self, ctx):
+        pass
+
+    @whitelist_add.command(name="channel")
+    async def whitelist_add_channel(self, ctx, channel: discord.TextChannel=None):
+        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+
+        if channel:
+            guild_config["whitelisted-channels"].append(channel.id)
+            await ctx.message.add_reaction("✅")
+            return
+
+    @whitelist_add.command(name="member")
+    async def whitelist_add_member(self, ctx, member: discord.Member=None):
+        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+
+        if member:
+            guild_config["whitelisted-members"].append(member.id)
+            await ctx.message.add_reaction("✅")
+            return
+
+    @whitelist.group(name="remove",
+                     invoke_without_command=True)
+    async def whitelist_remove(self, ctx):
+        pass
+
+    @whitelist_remove.command(name="channel")
+    async def whitelist_remove_channel(self, ctx, channel: discord.TextChannel):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
-        if intent:
+        if channel and channel.id in guild_config["whitelisted-channels"]:
+            guild_config["whitelisted-channels"].remove(channel.id)
+            await ctx.message.add_reaction("✅")
+            return
 
-            if intent.lower() == "add":
+    @whitelist_remove.command(name="member")
+    async def whitelist_remove_member(self, ctx, member: discord.Member):
 
-                if element:
+        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
-                    if element.lower() == "channel":
-                        channels = ctx.message.channel_mentions
-
-                        if channels:
-                            guild_config["whitelisted-channels"].append(channels[0].id)
-                            await ctx.message.add_reaction("✅")
-                            return
-
-                    elif element.lower() == "member":
-                        mentions = ctx.message.mentions
-
-                        if mentions:
-                            guild_config["whitelisted-channels"].remove(mentions[0].id)
-                            await ctx.message.add_reaction("✅")
-                            return
-
-            elif intent.lower() == "remove":
-
-                if element:
-
-                    if element.lower() == "channel":
-                        channels = ctx.message.channel_mentions
-
-                        if channels and channels[0].id in guild_config["whitelisted-channels"]:
-                            guild_config["whitelisted-channels"].remove(channels[0].id)
-                            await ctx.message.add_reaction("✅")
-                            return
-
-                    elif element.lower() == "member":
-                        mentions = ctx.message.mentions
-
-                        if mentions and mentions[0].id in guild_config["whitelisted-members"]:
-                            guild_config["whitelisted-channels"].remove(mentions[0].id)
-                            await ctx.message.add_reaction("✅")
-                            return
-
-        else:
-
-            # TODO: usage embed
-            pass
+        if member and member.id in guild_config["whitelisted-members"]:
+            guild_config["whitelisted-members"].remove(member.id)
+            await ctx.message.add_reaction("✅")
+            return
 
 
 def setup(bot):
