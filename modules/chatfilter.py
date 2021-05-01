@@ -231,7 +231,7 @@ class ChatFilterModule(commands.Cog):
         await ctx.message.add_reaction("✅")
         return
 
-    @add_word.error
+    @add_blacklist_word.error
     async def add_word_error(self, ctx, error):
         error = getattr(error, "original", error)
 
@@ -255,7 +255,7 @@ class ChatFilterModule(commands.Cog):
         await ctx.message.add_reaction("✅")
         return
 
-    @remove_word.error
+    @remove_blacklist_word.error
     async def remove_word_error(self, ctx, error):
         error = getattr(error, "original", error)
 
@@ -348,7 +348,7 @@ class ChatFilterModule(commands.Cog):
         pass
 
     @whitelist_add.command(name="channel")
-    async def whitelist_add_channel(self, ctx, channel: discord.TextChannel=None):
+    async def whitelist_add_channel(self, ctx, channel: discord.TextChannel = None):
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if channel:
@@ -357,7 +357,7 @@ class ChatFilterModule(commands.Cog):
             return
 
     @whitelist_add.command(name="member")
-    async def whitelist_add_member(self, ctx, member: discord.Member=None):
+    async def whitelist_add_member(self, ctx, member: discord.Member = None):
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if member:
