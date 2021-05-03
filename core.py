@@ -2,7 +2,14 @@ from os import listdir
 from json import load, dump
 from discord import Embed, File, Guild, Activity, ActivityType, Intents
 from discord.ext import commands, tasks
+from copy import copy
+from logging import getLogger, DEBUG, FileHandler, Formatter
 
+logger = getLogger('discord')
+logger.setLevel(DEBUG)
+handler = FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 class AdminBot(commands.Bot):
 
@@ -13,6 +20,7 @@ class AdminBot(commands.Bot):
                          help_command=None)
         try:
             self.config = self.load_configuration()
+            self.last_saved_config = self.load_configuration()
         except FileNotFoundError:
             self.config = {}
         with open("./botconfig.json", "r", encoding="utf-8") as credentials:
@@ -37,7 +45,7 @@ class AdminBot(commands.Bot):
                 # Adds the server to the config, with the above configuration
                 self.config[f"{guild.id}"] = default_config
         # Writes the new config to disk
-        self.save_configuration(self.config)
+        self.save_configuration()
 
         self.config_daemon.start()
 
@@ -53,7 +61,7 @@ class AdminBot(commands.Bot):
             self.config[f"{guild.id}"] = default_config
 
             # Writes the new config to disk
-            self.save_configuration(self.config)
+            self.save_configuration()
 
     @property
     def default_configuration(self) -> dict:
@@ -87,16 +95,20 @@ class AdminBot(commands.Bot):
         with open("./data/serverconfig.json", "r", encoding="utf-8") as stored_config:
             return load(stored_config)
 
-    @staticmethod
-    def save_configuration(config) -> None:
-        with open("./data/serverconfig.json", "w") as stored_config:
-            # This writes the configuration with the changes made to the disk.
-            dump(config, stored_config, indent=4)
-            stored_config.truncate()
+    def save_configuration(self) -> None:
+        if self.config == self.last_saved_config:
+            return
+        else:
+            with open("./data/serverconfig.json", "w") as stored_config:
+                # This writes the configuration with the changes made to the disk.
+                dump(self.config, stored_config, indent=4)
+                stored_config.truncate()
 
     @tasks.loop(minutes=1.0)
     async def config_daemon(self):
-        self.save_configuration(self.config)
+        print("ohayougozaimasu")
+        self.save_configuration()
+        self.last_saved_config = copy(self.config)
 
 
 admin = AdminBot(command_prefix="-",
