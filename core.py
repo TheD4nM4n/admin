@@ -97,9 +97,7 @@ class AdminBot(commands.Bot):
             return load(stored_config)
 
     def save_configuration(self) -> None:
-        if self.config == self.last_saved_config:
-            return
-        else:
+        if not self.config == self.last_saved_config:
             with open("./data/serverconfig.json", "w") as stored_config:
                 # This writes the configuration with the changes made to the disk.
                 dump(self.config, stored_config, indent=4)
