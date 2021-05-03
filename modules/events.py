@@ -11,23 +11,21 @@ class EventsModule(commands.Cog):
         self.bot = bot
         print("'Events' module loaded.")
 
-    @commands.command(description="A powerful set of tools for running giveaways.")
+    @commands.group(description="A powerful set of tools for running giveaways.",
+                    invoke_without_command=True)
     @commands.has_permissions(manage_guild=True)
-    async def giveaway(self, ctx: commands.Context, intent=None, role: Role = None) -> None:
+    async def giveaway(self, ctx: commands.Context) -> None:
+        pass
 
-        if intent:
+    @giveaway.command(name="draw",
+                      description="Draws a random winner from everyone in the server or role (if specified).")
+    @commands.has_permissions(manage_guild=True)
+    async def giveaway_draw(self, ctx, role: Role = None):
+        if role:
+            await ctx.send(f"Your winner is {choice(role.members).mention}!")
 
-            if intent.lower() == "draw":
-
-                if role:
-                    giveaway_winner = choice(role.members)
-                    await ctx.send(f"Your winner is {giveaway_winner.mention}!")
-                    return
-
-                else:
-                    giveaway_winner = choice(ctx.guild.members)
-                    await ctx.send(f"Your winner is {giveaway_winner.mention}!")
-                    return
+        else:
+            await ctx.send(f"Your winner is{choice(ctx.guild.members).mention}!")
 
 
 def setup(bot):
