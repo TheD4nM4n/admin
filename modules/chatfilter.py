@@ -1,5 +1,7 @@
 from re import sub
-from discord import User, File, Embed, Message, Member, TextChannel
+
+import discord
+from discord import User, File, Embed, Message
 from better_profanity import profanity
 from discord.ext import commands
 
@@ -48,8 +50,6 @@ class ChatFilterModule(commands.Cog):
             return True
         elif isinstance(message.author, User):
             return True
-        elif message.author.guild_permissions.administrator and "-filter add" in message.content:
-            return True
         else:
             return False
 
@@ -74,55 +74,60 @@ class ChatFilterModule(commands.Cog):
             # If the message isn't sent by the bot, in a whitelisted channel, or sent by a whitelisted user...
             if not self.exempt_check(message):
 
-                text_without_formatting = sub("[^\\w-]+", " ", message.content)
+                if message.author.guild_permissions.administrator and "-filter add" in message.content:
+                    pass
 
-                # Checks if message contains a custom blacklisted word
-                for word in guild_config["custom-words"]:
+                else:
 
-                    if word in text_without_formatting.lower():
+                    text_without_formatting = sub("[^\\w-]+", " ", message.content)
 
-                        # Delete message
-                        await message.delete()
+                    # Checks if message contains a custom blacklisted word
+                    for word in guild_config["custom-words"]:
 
-                        # If the server has a log channel set, build an embed and send it.
-                        if guild_config["log-channel"]:
-                            file = File("./assets/vgcdisgusting.png")
-                            embed = Embed(title="I have deleted a message from a channel.",
-                                          description=f"Offender: {message.author.name}\n"
-                                                      f"Channel: {message.channel}\n",
-                                          color=0xff0000)
-                            embed.add_field(name="Message content:", value=text_without_formatting)
-                            embed.set_thumbnail(url="attachment://vgcdisgusting.png")
+                        if word in text_without_formatting.lower():
 
-                            log_channel = self.bot.get_channel(guild_config["log-channel"])
-                            await log_channel.send(file=file, embed=embed)
+                            # Delete message
+                            await message.delete()
+
+                            # If the server has a log channel set, build an embed and send it.
+                            if guild_config["log-channel"]:
+                                file = File("./assets/vgcdisgusting.png")
+                                embed = Embed(title="I have deleted a message from a channel.",
+                                              description=f"Offender: {message.author.name}\n"
+                                                          f"Channel: {message.channel}\n",
+                                              color=0xff0000)
+                                embed.add_field(name="Message content:", value=text_without_formatting)
+                                embed.set_thumbnail(url="attachment://vgcdisgusting.png")
+
+                                log_channel = self.bot.get_channel(guild_config["log-channel"])
+                                await log_channel.send(file=file, embed=embed)
+                                return
+
                             return
 
-                        return
+                    # ...check for profanity.
+                    if guild_config["use-default-list"]:
 
-                # ...check for profanity.
-                if guild_config["use-default-list"]:
+                        if profanity.contains_profanity(text_without_formatting):
 
-                    if profanity.contains_profanity(text_without_formatting):
+                            # Delete message
+                            await message.delete()
 
-                        # Delete message
-                        await message.delete()
+                            # If the server has a log channel set, build an embed and send it.
+                            if guild_config["log-channel"]:
+                                file = File("./assets/vgcdisgusting.png")
+                                embed = Embed(title="I have deleted a message from a channel.",
+                                              description=f"Offender: {message.author.name}\n"
+                                                          f"Channel: {message.channel}\n",
+                                              color=0xff0000)
+                                embed.add_field(name="Message content:", value=message.content)
+                                embed.add_field(name="Filtered content:",
+                                                value=profanity.censor(text_without_formatting, "#"))
+                                embed.set_thumbnail(url="attachment://vgcdisgusting.png")
+                                log_channel = self.bot.get_channel(guild_config["log-channel"])
 
-                        # If the server has a log channel set, build an embed and send it.
-                        if guild_config["log-channel"]:
-                            file = File("./assets/vgcdisgusting.png")
-                            embed = Embed(title="I have deleted a message from a channel.",
-                                          description=f"Offender: {message.author.name}\n"
-                                                      f"Channel: {message.channel}\n",
-                                          color=0xff0000)
-                            embed.add_field(name="Message content:", value=message.content)
-                            embed.add_field(name="Filtered content:",
-                                            value=profanity.censor(text_without_formatting, "#"))
-                            embed.set_thumbnail(url="attachment://vgcdisgusting.png")
-                            log_channel = self.bot.get_channel(guild_config["log-channel"])
-
-                            await log_channel.send(file=file, embed=embed)
-                            return
+                                await log_channel.send(file=file, embed=embed)
+                                return
 
     @commands.group(name="filter",
                     description="Allows the configuration of the chat filter in this server.",
@@ -332,26 +337,10 @@ class ChatFilterModule(commands.Cog):
     @commands.group(description="Add/remove users or channels to the server whitelist.",
                     invoke_without_command=True)
     @commands.has_permissions(manage_messages=True)
-    async def whitelist(self, ctx) -> None:
+    async def whitelist(self, ctx, intent=None, element=None) -> None:
 
-        file = File(fp="./assets/vgctired.png", filename="vgctired.png")
-        embed = Embed(title=f"{admin.command_prefix}whitelist",
-                      description="Allows the whitelisting of channels and members.",
-                      color=0xff0000)
-        embed.set_thumbnail(url="attachment://vgctired.png")
-        embed.add_field(name="Intents",
-                        value="To use these, execute 'whitelist *intent*'. Some intents may require arguments, "
-                              "and ones that do will have them shown below.",
-                        inline=False)
-        embed.add_field(name="add (member/channel)",
-                        value="Sets the channel for greeting messages.\n"
-                              "Example usage: *whitelist add channel #log*",
-                        inline=False)
-        embed.add_field(name="remove (member/channel)",
-                        value="Enables/disables greeting messages for this server.\n"
-                              "Example usage: *whitelist remove member @Admin*",
-                        inline=False)
-        await ctx.send(file=file, embed=embed)
+        # TODO: Usage embed
+        pass
 
     @whitelist.group(name="add",
                      invoke_without_command=True)
@@ -359,7 +348,7 @@ class ChatFilterModule(commands.Cog):
         pass
 
     @whitelist_add.command(name="channel")
-    async def whitelist_add_channel(self, ctx, channel: TextChannel = None):
+    async def whitelist_add_channel(self, ctx, channel: discord.TextChannel = None):
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if channel:
@@ -368,7 +357,7 @@ class ChatFilterModule(commands.Cog):
             return
 
     @whitelist_add.command(name="member")
-    async def whitelist_add_member(self, ctx, member: Member = None):
+    async def whitelist_add_member(self, ctx, member: discord.Member = None):
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if member:
@@ -382,7 +371,7 @@ class ChatFilterModule(commands.Cog):
         pass
 
     @whitelist_remove.command(name="channel")
-    async def whitelist_remove_channel(self, ctx, channel: TextChannel):
+    async def whitelist_remove_channel(self, ctx, channel: discord.TextChannel):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
@@ -392,7 +381,7 @@ class ChatFilterModule(commands.Cog):
             return
 
     @whitelist_remove.command(name="member")
-    async def whitelist_remove_member(self, ctx, member: Member):
+    async def whitelist_remove_member(self, ctx, member: discord.Member):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
