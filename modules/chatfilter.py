@@ -67,7 +67,7 @@ class ChatFilterModule(commands.Cog):
                 "custom-words": [],
                 "whitelisted-channels": [],
             }
-            admin.save_configuration(admin.config)
+            admin.save_configuration()
 
         if guild_config["enabled"]:
 
