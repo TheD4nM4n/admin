@@ -11,6 +11,7 @@ handler = FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+
 class AdminBot(commands.Bot):
 
     def __init__(self, **kwargs):
@@ -106,7 +107,6 @@ class AdminBot(commands.Bot):
 
     @tasks.loop(minutes=1.0)
     async def config_daemon(self):
-        print("ohayougozaimasu")
         self.save_configuration()
         self.last_saved_config = copy(self.config)
 
