@@ -35,12 +35,13 @@ class AdministratorModule(commands.Cog):
 
         if confirmation.content.lower() == "y":
 
-            await confirmation.delete()
-            await initial_message.delete()
-
             config_file = StringIO(dumps(admin.config, indent=4))
             file = File(config_file, filename="admin_config.txt")
-            return await ctx.send(file=file)
+            await ctx.send(file=file)
+
+            await confirmation.delete()
+            await initial_message.delete()
+            return
 
         else:
             await initial_message.delete()
@@ -64,13 +65,14 @@ class AdministratorModule(commands.Cog):
 
         if confirmation.content.lower() == "y":
 
-            await confirmation.delete()
-            await initial_message.delete()
-
             with open("./discord.log", "rb") as log:
                 file = File(log)
 
             await ctx.send(file=file)
+
+            await confirmation.delete()
+            await initial_message.delete()
+            return
 
 
 def setup(bot):
