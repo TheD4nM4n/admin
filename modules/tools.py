@@ -33,7 +33,7 @@ class ToolsModule(commands.Cog):
             return msg.author == ctx.message.author and msg.channel == ctx.channel
 
         # Fetches color from the dictionary, and splits the content into it's title and description
-        html_color = COLORS[color]
+        html_color = COLORS[color.lower()]
         split_message = content.split("|")
 
         # We aren't finished yet!
