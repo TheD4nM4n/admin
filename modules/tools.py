@@ -65,6 +65,9 @@ class ToolsModule(commands.Cog):
     @commands.check_any(commands.has_permissions(administrator=True))
     @commands.has_permissions(administrator=True)
     async def make_server(self, ctx: commands.Context):
+
+        # TODO: Server presets for new clubs
+
         pass
 
     @embed.error
