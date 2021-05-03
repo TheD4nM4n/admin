@@ -65,27 +65,30 @@ class ReactionRolesModule(commands.Cog):
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("Please include a role to give.")
 
+    # TODO: Reaction roles
+
     # @commands.command(description="Links a message sent with roles.")
     # @commands.has_permissions(administrator=True)
     # async def link(self, ctx: commands.Context):
     #     pass
 
-    @role.group(description="Gives the role provided (if the role is available as a self serve).",
+    @role.group(name="give",
+                description="Gives the role provided (if the role is available as a self serve).",
                 invoke_without_command=True)
-    async def give(self, ctx: commands.Context, role: Role):
+    async def self_serve_give(self, ctx: commands.Context, role: Role):
 
         # Loads the list of roles allowed to be self-served
         self_serve_roles = admin.config[f"{ctx.guild.id}"]["self-serve"]
 
-        # Gives the
+        # Gives the role
         if role.id in self_serve_roles:
             await ctx.author.add_roles(role)
             await ctx.message.add_reaction("✅")
         else:
             raise RoleNotAllowed("The role specified is not in the self-serve list.")
 
-    @give.command()
-    async def list(self, ctx: commands.Context):
+    @self_serve_give.command(name="list")
+    async def self_serve_list(self, ctx: commands.Context):
 
         # Loads the list of roles allowed to be self-served
         self_serve_roles = admin.config[f"{ctx.guild.id}"]["self-serve"]
@@ -104,7 +107,7 @@ class ReactionRolesModule(commands.Cog):
             await ctx.send("It seems there are no roles for self-serve in this server. Contact a server admin if you "
                            "think this is an issue. Sorry for the inconvenience!")
 
-    @give.error
+    @self_serve_give.error
     @role_all.error
     async def general_role_error(self, ctx, error):
         print(error)
