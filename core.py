@@ -127,7 +127,7 @@ async def reload(ctx: commands.Context, module_name=None):
 
         for module_title in listdir("./modules"):
             if module_title.endswith(".py"):
-                admin.load_extension(f"modules.{module_title[:-3]}")
+                admin.load_extension(f"{module_title[:-3]}")
 
         await ctx.message.add_reaction("✅")
 
@@ -173,7 +173,7 @@ async def modules(ctx: commands.Context):
 @admin.command(description="Enables a module.")
 @commands.is_owner()
 async def enable(ctx: commands.Context, module_name):
-    if f"modules.{module_name}" not in admin.extensions:
+    if module_name.lower() not in admin.extensions:
         if f"{module_name.lower()}.py" in listdir("./modules"):
             admin.load_extension(f"modules.{module_name.lower()}")
             await ctx.message.add_reaction("✅")
@@ -187,7 +187,7 @@ async def enable(ctx: commands.Context, module_name):
 @admin.command(description="Disables a module.")
 @commands.is_owner()
 async def disable(ctx: commands.Context, module_name):
-    if f"modules.{module_name.lower()}" in admin.extensions:
+    if module_name.lower() in admin.extensions:
         admin.remove_cog(module_name.lower())
         admin.unload_extension(f'modules.{module_name.lower()}')
         await ctx.message.add_reaction("✅")
