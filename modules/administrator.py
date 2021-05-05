@@ -10,16 +10,17 @@ class AdministratorModule(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        print("'Administrator' module loaded.")
 
-    @commands.group(invoke_without_command=True)
-    @commands.is_owner()
-    async def dump(self, ctx):
-        pass
-
-    @dump.command()
+    @commands.group(name="config",
+                    invoke_without_command=True)
     @commands.is_owner()
     async def config(self, ctx):
+        pass
 
+    @config.command(name="dump")
+    @commands.is_owner()
+    async def dump_config(self, ctx):
         def check(message):
             return message.author == ctx.author
 
@@ -43,13 +44,22 @@ class AdministratorModule(commands.Cog):
             await initial_message.delete()
             return
 
-        else:
-            await initial_message.delete()
-            return await ctx.send("Cancelling config dump.")
+    @config.command(name="save")
+    @commands.is_owner()
+    async def force_save_config(self, ctx):
 
-    @dump.command()
+        admin.save_configuration()
+        await ctx.message.add_reaction("✅")
+        return
+
+    @commands.group(invoke_without_command=True)
     @commands.is_owner()
     async def log(self, ctx):
+        pass
+
+    @log.command(name="dump")
+    @commands.is_owner()
+    async def dump_log(self, ctx):
 
         def check(message):
             return message.author == ctx.author
