@@ -20,7 +20,7 @@ class AdministratorModule(commands.Cog):
 
     @config.command(name="dump")
     @commands.is_owner()
-    async def dump_config(self, ctx):
+    async def dump_config(self, ctx: commands.Context):
         def check(message):
             return message.author == ctx.author
 
@@ -46,7 +46,7 @@ class AdministratorModule(commands.Cog):
 
     @config.command(name="save")
     @commands.is_owner()
-    async def force_save_config(self, ctx):
+    async def force_save_config(self, ctx: commands.Context):
 
         admin.save_configuration()
         await ctx.message.add_reaction("✅")
@@ -59,7 +59,7 @@ class AdministratorModule(commands.Cog):
 
     @log.command(name="dump")
     @commands.is_owner()
-    async def dump_log(self, ctx):
+    async def dump_log(self, ctx: commands.Context):
 
         def check(message):
             return message.author == ctx.author

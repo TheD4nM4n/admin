@@ -198,7 +198,7 @@ class ChatFilterModule(commands.Cog):
                 return
 
     @filter_log.error
-    async def filter_log_error(self, ctx, error):
+    async def filter_log_error(self, ctx: commands.Context, error):
 
         # Gets original error (useful if the error invoked is a CommandInvokeError)
         error = getattr(error, "original", error)
@@ -227,7 +227,7 @@ class ChatFilterModule(commands.Cog):
         return
 
     @add_blacklist_word.error
-    async def add_word_error(self, ctx, error):
+    async def add_word_error(self, ctx: commands.Context, error):
         error = getattr(error, "original", error)
 
         if isinstance(error, commands.MissingRequiredArgument):
@@ -251,7 +251,7 @@ class ChatFilterModule(commands.Cog):
         return
 
     @remove_blacklist_word.error
-    async def remove_word_error(self, ctx, error):
+    async def remove_word_error(self, ctx: commands.Context, error):
         error = getattr(error, "original", error)
 
         if isinstance(error, commands.MissingRequiredArgument):
@@ -359,7 +359,7 @@ class ChatFilterModule(commands.Cog):
         pass
 
     @whitelist_add.command(name="channel")
-    async def whitelist_add_channel(self, ctx, channel: TextChannel = None):
+    async def whitelist_add_channel(self, ctx: commands.Context, channel: TextChannel = None):
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if channel:
@@ -368,7 +368,7 @@ class ChatFilterModule(commands.Cog):
             return
 
     @whitelist_add.command(name="member")
-    async def whitelist_add_member(self, ctx, member: Member = None):
+    async def whitelist_add_member(self, ctx: commands.Context, member: Member = None):
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if member:
@@ -378,7 +378,7 @@ class ChatFilterModule(commands.Cog):
 
     @whitelist.group(name="remove",
                      invoke_without_command=True)
-    async def whitelist_remove(self, ctx):
+    async def whitelist_remove(self, ctx: commands.Context):
         pass
 
     @whitelist_remove.command(name="channel")
@@ -392,7 +392,7 @@ class ChatFilterModule(commands.Cog):
             return
 
     @whitelist_remove.command(name="member")
-    async def whitelist_remove_member(self, ctx, member: Member):
+    async def whitelist_remove_member(self, ctx: commands.Context, member: Member):
 
         guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
 
