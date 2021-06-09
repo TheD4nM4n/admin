@@ -17,13 +17,14 @@ class AdminBot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(command_prefix=kwargs['command_prefix'],
                          intents=kwargs['intents'],
-                         activity=Activity(type=ActivityType.listening, name="-help"),
+                         activity=kwargs['activity'],
                          help_command=None)
         try:
             self.config = self.load_configuration()
             self.last_saved_config = self.load_configuration()
         except FileNotFoundError:
             self.config = {}
+            self.last_saved_config = {}
         with open("./botconfig.json", "r", encoding="utf-8") as credentials:
             config_json = load(credentials)
             self.token = config_json["discord-token"]
@@ -38,7 +39,7 @@ class AdminBot(commands.Bot):
         for guild in self.guilds:
             if guild.id not in self.config:
                 # Loads the default config and modifies it to fit the server
-                default_config = self.default_configuration
+                default_config = copy(self.default_configuration)
                 if guild.system_channel:
                     default_config["greetings"]["channel"] = guild.system_channel.id
                 default_config["name"] = guild.name
@@ -110,7 +111,8 @@ class AdminBot(commands.Bot):
 
 
 admin = AdminBot(command_prefix="-",
-                 intents=Intents.all())
+                 intents=Intents.all(),
+                 activity=Activity(type=ActivityType.listening, name="-help"))
 
 
 @admin.command(description="Reloads the specified module, or all of them if no module is specified.")
