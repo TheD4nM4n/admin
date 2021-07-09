@@ -2,7 +2,7 @@ from re import sub
 from discord import User, File, Embed, Message, Member, TextChannel
 from better_profanity import profanity
 from discord.ext import commands
-
+import config
 from core import admin
 
 
@@ -40,9 +40,9 @@ class ChatFilterModule(commands.Cog):
 
     def exempt_check(self, message) -> bool:
 
-        if message.author.id in admin.config[f"{message.guild.id}"]["chat-filter"]["whitelisted-members"]:
+        if message.author.id in config.config[f"{message.guild.id}"]["chat-filter"]["whitelisted-members"]:
             return True
-        elif message.channel.id in admin.config[f"{message.guild.id}"]["chat-filter"]["whitelisted-channels"]:
+        elif message.channel.id in config.config[f"{message.guild.id}"]["chat-filter"]["whitelisted-channels"]:
             return True
         elif message.author.id == self.bot.user.id:
             return True
@@ -57,9 +57,9 @@ class ChatFilterModule(commands.Cog):
     async def chat_filter(self, message: Message) -> None:
         # Loads the chat filter configuration of the server the message was sent
         try:
-            guild_config = admin.config[f"{message.guild.id}"]["chat-filter"]
+            guild_config = config.config[f"{message.guild.id}"]["chat-filter"]
         except KeyError:
-            guild_config = admin.config[f"{message.guild.id}"]
+            guild_config = config.config[f"{message.guild.id}"]
             guild_config["chat-filter"] = {
                 "enabled": True,
                 "log-channel": None,
@@ -164,7 +164,7 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def enable_filter(self, ctx: commands.Context):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         guild_config["enabled"] = True
         await ctx.message.add_reaction("✅")
@@ -174,7 +174,7 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def disable_filter(self, ctx: commands.Context):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         guild_config["enabled"] = False
         await ctx.message.add_reaction("✅")
@@ -184,7 +184,7 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def filter_log(self, ctx: commands.Context, channel):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
         channels = ctx.message.channel_mentions
 
         if channels:
@@ -220,7 +220,7 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def add_blacklist_word(self, ctx: commands.Context, word):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         guild_config["custom-words"].append(word.lower())
         await ctx.message.add_reaction("✅")
@@ -244,7 +244,7 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def remove_blacklist_word(self, ctx: commands.Context, word):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         guild_config["custom-words"].remove(word.lower())
         await ctx.message.add_reaction("✅")
@@ -277,7 +277,7 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def send_custom_blacklist(self, ctx: commands.Context):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if guild_config["custom-words"]:
             embed = Embed(title="Custom Words",
@@ -313,7 +313,7 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def enable_default_list(self, ctx: commands.Context):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         guild_config["use-default-list"] = True
         await ctx.message.add_reaction("✅")
@@ -323,7 +323,7 @@ class ChatFilterModule(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def disable_default_list(self, ctx: commands.Context):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         guild_config["use-default-list"] = False
         await ctx.message.add_reaction("✅")
@@ -360,7 +360,7 @@ class ChatFilterModule(commands.Cog):
 
     @whitelist_add.command(name="channel")
     async def whitelist_add_channel(self, ctx: commands.Context, channel: TextChannel = None):
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if channel:
             guild_config["whitelisted-channels"].append(channel.id)
@@ -369,7 +369,7 @@ class ChatFilterModule(commands.Cog):
 
     @whitelist_add.command(name="member")
     async def whitelist_add_member(self, ctx: commands.Context, member: Member = None):
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if member:
             guild_config["whitelisted-members"].append(member.id)
@@ -384,7 +384,7 @@ class ChatFilterModule(commands.Cog):
     @whitelist_remove.command(name="channel")
     async def whitelist_remove_channel(self, ctx, channel: TextChannel):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if channel and channel.id in guild_config["whitelisted-channels"]:
             guild_config["whitelisted-channels"].remove(channel.id)
@@ -394,7 +394,7 @@ class ChatFilterModule(commands.Cog):
     @whitelist_remove.command(name="member")
     async def whitelist_remove_member(self, ctx: commands.Context, member: Member):
 
-        guild_config = admin.config[f"{ctx.guild.id}"]["chat-filter"]
+        guild_config = config.config[f"{ctx.guild.id}"]["chat-filter"]
 
         if member and member.id in guild_config["whitelisted-members"]:
             guild_config["whitelisted-members"].remove(member.id)

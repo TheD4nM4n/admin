@@ -1,44 +1,43 @@
+from os import getenv
 from discord import Embed, File
 from discord.ext import commands
-from rawgpy import RAWG
 from html import unescape
 from Pymoe import Anilist
-from core import admin
 from re import sub, compile
+import aiohttp
 
-rawg = RAWG(admin.rawg_key)
+KEY = getenv("RAWG_KEY")
 db = Anilist()
 
 
-def beautify_for_description(raw_html):
+def beautify_for_description(raw_html) -> str:
     formatted_text = raw_html.replace("<br>", "").replace("<i>", "*").replace("</i>", "*")
     cleaned_text_paragraph = sub(compile('<.*?>'), '', formatted_text).split("\n")[0]
     final_text = cleaned_text_paragraph[:375] + (cleaned_text_paragraph[375:] and '... (cont.)')
     return final_text
 
 
-def clean_text(raw_html):
+def clean_text(raw_html) -> str:
     unescaped_html = unescape(raw_html)
     cleaner_text = sub(compile("<.*?>"), '', unescaped_html)
     final_text = (cleaner_text[:225] + (cleaner_text[225:] and '...')).split("\n")[0]
     return final_text
 
 
-def get_game(name):
+async def get_game(name):
     # Gets game information from rawg.io
-    results = rawg.search(name)
-    game = results[0]
-    game.populate()
+    async with aiohttp.ClientSession() as session:
+        url = f"https://api.rawg.io/api/games?key={KEY}&search={name}&page_size=1"
+        async with session.get(url) as resp:
+            result = await resp.json()
+            print(result)
 
-    # Prepares name for screenshot GET request
-    name_with_underscores = game.name.lower().replace(" ", "-")
-    final_name = sub("[^\\w-]+", "", name_with_underscores)
+        slug = result['results'][0]['slug']
 
-    # Gets screenshots of game
-    photos = rawg.get_request(url=f"https://api.rawg.io/api/games/{final_name}/screenshots")
-
-    # Returns the items
-    return game, photos["results"][0]["image"]
+        url = f"https://api.rawg.io/api/games/{slug}?key={KEY}"
+        async with session.get(url) as resp:
+            result = await resp.json()
+            return result
 
 
 class InfoModule(commands.Cog):
@@ -56,36 +55,31 @@ class InfoModule(commands.Cog):
         await ctx.trigger_typing()
 
         # See get_game method
-        game, image = get_game(arg)
+        game = await get_game(arg)
 
         # See clean_text method
-        cleaned_description = clean_text(game.description)
+        cleaned_description = clean_text(game["description"])
 
         # Sets up the embedded message
         file = File(fp="./assets/rawg.jpg", filename="rawg.jpg")
-        embed = Embed(title=game.name,
+        embed = Embed(title=game['name'],
                       description=cleaned_description,
-                      url=None,
                       color=0xff0000)
         embed.set_author(name="Made with RAWG", url="https://rawg.io", icon_url="attachment://rawg.jpg")
-        embed.set_thumbnail(url=image)
+        embed.set_thumbnail(url=game['background_image'])
 
         # Initial variables
         platform_list = str()
-        publisher_list = str()
 
-        # Makes a string of all publishers for a game
-        for publisher in game.publishers:
-            publisher_list += f"{publisher.name}\n"
-        embed.add_field(name="Publishers", value=publisher_list)
+        embed.add_field(name="Publisher", value=game['publishers'][0]['name'])
 
         # Makes a string of all platforms a game is on (up to 4)
-        for platform in game.platforms[:4]:
-            platform_list += f"{platform.name}\n"
+        for platform in game['platforms'][:4]:
+            platform_list += f"{platform['platform']['name']}\n"
 
         # Adds ending with the remaining amount of platforms (if there is more than 4)
-        if len(game.platforms) > 4:
-            platform_list += f"...and {len(game.platforms) - 4} more"
+        if len(game['platforms']) > 4:
+            platform_list += f"...and {len(game['platforms']) - 4} more"
         embed.add_field(name="Platforms", value=platform_list)
 
         # Sending da embed
@@ -129,16 +123,19 @@ class InfoModule(commands.Cog):
             manga = db.get.manga(results['data']['Page']['media'][0]['id'])['data']['Media']
 
             # Beautifies description for sending to Discord
-            manga_description = beautify_for_description(manga['description'])
+            if manga['description']:
+                manga_description = beautify_for_description(manga['description'])
 
             # Constructs embed for sending
             embed = Embed(title=f"{manga['title']['romaji']}",
                           description=f"English: {manga['title']['english']}",
                           color=0xff0000)
             embed.set_thumbnail(url=manga['coverImage']['large'])
-            embed.add_field(name="Description",
-                            value=f"{manga_description}",
-                            inline=False)
+
+            if manga['description']:
+                embed.add_field(name="Description",
+                                value=f"{manga_description}",
+                                inline=False)
             embed.add_field(name="Average Score",
                             value=f"{manga['averageScore']}")
             embed.add_field(name="Genre",

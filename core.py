@@ -1,9 +1,10 @@
-from os import listdir
-from json import load, dump
+from os import listdir, getenv
+from json import dump
 from discord import Embed, File, Guild, Activity, ActivityType, Intents
 from discord.ext import commands, tasks
 from copy import copy
 from logging import getLogger, DEBUG, FileHandler, Formatter
+import config
 
 logger = getLogger('discord')
 logger.setLevel(DEBUG)
@@ -11,25 +12,30 @@ handler = FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+TOKEN = getenv("TOKEN")
+ADMIN = getenv("ADMIN")
+RAWG_KEY = getenv("RAWG_KEY")
+PREFIX = getenv("PREFIX", "-")
+
+if TOKEN is None:
+    raise Exception("No token provided.")
+if ADMIN is None:
+    print("[WARN] No bot administrator was defined. Low level bot access will be impossible!")
+if RAWG_KEY is None:
+    print("[WARN] No RAWG key was detected, command 'game' will be disabled.")
+
 
 class AdminBot(commands.Bot):
 
     def __init__(self, **kwargs):
-        super().__init__(command_prefix=kwargs['command_prefix'],
+        super().__init__(command_prefix=PREFIX,
                          intents=kwargs['intents'],
                          activity=kwargs['activity'],
                          help_command=None)
-        try:
-            self.config = self.load_configuration()
-            self.last_saved_config = self.load_configuration()
-        except FileNotFoundError:
-            self.config = {}
-            self.last_saved_config = {}
-        with open("./botconfig.json", "r", encoding="utf-8") as credentials:
-            config_json = load(credentials)
-            self.token = config_json["discord-token"]
-            self.owner_ids = config_json["bot-administrators"]
-            self.rawg_key = config_json["rawg-key"]
+        self.token = TOKEN
+        self.owner_id = int(ADMIN)
+        self.rawg_key = RAWG_KEY
+        self.last_saved_config = None
 
     async def on_ready(self):
         for module in listdir('./modules'):
@@ -37,15 +43,15 @@ class AdminBot(commands.Bot):
                 self.load_extension(f'modules.{module[:-3]}')
 
         for guild in self.guilds:
-            if guild.id not in self.config:
+            if guild.id not in config.config:
                 # Loads the default config and modifies it to fit the server
-                default_config = copy(self.default_configuration)
+                default_config = copy(config.default_configuration)
                 if guild.system_channel:
                     default_config["greetings"]["channel"] = guild.system_channel.id
                 default_config["name"] = guild.name
 
                 # Adds the server to the config, with the above configuration
-                self.config[f"{guild.id}"] = default_config
+                config.config[f"{guild.id}"] = default_config
         # Writes the new config to disk
         self.save_configuration()
 
@@ -54,64 +60,31 @@ class AdminBot(commands.Bot):
     async def on_guild_join(self, guild: Guild) -> None:
 
         # If the server isn't in the config file, it loads the default config and modifies it to fit the server
-        if str(guild.id) not in self.config:
-            default_config = self.default_configuration
+        if str(guild.id) not in config.config:
+            default_config = config.default_configuration
             default_config["greetings"]["channel"] = guild.system_channel.id
             default_config["name"] = guild.name
 
             # Adds the server to the config, with the above configuration
-            self.config[f"{guild.id}"] = default_config
+            config.config[f"{guild.id}"] = default_config
 
             # Writes the new config to disk
             self.save_configuration()
 
-    @property
-    def default_configuration(self) -> dict:
-        # Returns the default configuration (for use in generating new server configurations)
-        return {
-            "name": None,
-            "greetings": {
-                "enabled": True,
-                "channel": None
-            },
-            "reaction-roles": {
-                "enabled": True
-            },
-            "chat-filter": {
-                "enabled": True,
-                "log-channel": None,
-                "use-default-list": True,
-                "custom-words": [],
-                "whitelisted-channels": [],
-                "whitelisted-members": []
-            },
-            "mute": {
-                "enabled": True,
-                "muted-members": []
-            }
-        }
-
-    @staticmethod
-    def load_configuration() -> dict:
-        # Returns the configuration stored on disk.
-        with open("./data/serverconfig.json", "r", encoding="utf-8") as stored_config:
-            return load(stored_config)
-
     def save_configuration(self) -> None:
-        if not self.config == self.last_saved_config:
+        if not config.config == self.last_saved_config:
             with open("./data/serverconfig.json", "w") as stored_config:
                 # This writes the configuration with the changes made to the disk.
-                dump(self.config, stored_config, indent=4)
+                dump(config.config, stored_config, indent=4)
                 stored_config.truncate()
 
     @tasks.loop(minutes=1.0)
     async def config_daemon(self):
-        self.save_configuration()
-        self.last_saved_config = copy(self.config)
+        config.save_data(config.config, "./data/serverconfig.json")
+        self.last_saved_config = copy(config.config)
 
 
-admin = AdminBot(command_prefix="-",
-                 intents=Intents.all(),
+admin = AdminBot(intents=Intents.all(),
                  activity=Activity(type=ActivityType.listening, name="-help"))
 
 

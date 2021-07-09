@@ -1,7 +1,7 @@
 from discord.ext import commands
 from io import StringIO
 from discord import File
-from core import admin
+import config
 from json import dumps
 from asyncio import TimeoutError
 
@@ -36,7 +36,7 @@ class AdministratorModule(commands.Cog):
 
         if confirmation.content.lower() == "y":
 
-            config_file = StringIO(dumps(admin.config, indent=4))
+            config_file = StringIO(dumps(config.config, indent=4))
             file = File(config_file, filename="admin_config.txt")
             await ctx.send(file=file)
 
@@ -48,7 +48,7 @@ class AdministratorModule(commands.Cog):
     @commands.is_owner()
     async def force_save_config(self, ctx: commands.Context):
 
-        admin.save_configuration()
+        config.save_data(config.config, "./data/serverconfig.json")
         await ctx.message.add_reaction("✅")
         return
 

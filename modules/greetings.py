@@ -2,7 +2,7 @@ import json
 from discord import TextChannel, File, Embed
 from discord.ext import commands
 from random import choice
-from core import admin
+import config
 
 
 class GreetingsModule(commands.Cog):
@@ -19,7 +19,7 @@ class GreetingsModule(commands.Cog):
     async def send_greeting(self, member):
 
         # Gets the configuration for the server that the user joined
-        guild_config = admin.config[f"{member.guild.id}"]["greetings"]
+        guild_config = config.config[f"{member.guild.id}"]["greetings"]
 
         """ 
                 If greetings are enabled for the server, send a message from the list.
@@ -73,7 +73,7 @@ class GreetingsModule(commands.Cog):
     async def greetings_set(self, ctx, channel: TextChannel):
 
         # Sets the welcome channel for the server to the channel provided
-        guild_config = admin.config[f"{ctx.guild.id}"]["greetings"]
+        guild_config = config.config[f"{ctx.guild.id}"]["greetings"]
 
         if channel.guild.id == ctx.guild.id:
             guild_config["channel"] = channel.id
@@ -84,7 +84,7 @@ class GreetingsModule(commands.Cog):
     async def greetings_enable(self, ctx):
 
         # This enables welcome messages for the server
-        guild_config = admin.config[f"{ctx.guild.id}"]["greetings"]
+        guild_config = config.config[f"{ctx.guild.id}"]["greetings"]
 
         guild_config["enabled"] = True
         return await ctx.message.add_reaction("✅")
@@ -94,7 +94,7 @@ class GreetingsModule(commands.Cog):
     async def greetings_disable(self, ctx):
 
         # This enables welcome messages for the server
-        guild_config = admin.config[f"{ctx.guild.id}"]["greetings"]
+        guild_config = config.config[f"{ctx.guild.id}"]["greetings"]
 
         guild_config["enabled"] = True
         return await ctx.message.add_reaction("✅")

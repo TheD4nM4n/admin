@@ -1,6 +1,6 @@
 from discord import Member
 from discord.ext import commands
-from core import admin
+import config
 
 
 class MemberAlreadyAssigned(Exception):
@@ -17,7 +17,7 @@ class ModerationModule(commands.Cog):
     async def mute_listener(self, message):
 
         # Loads mute configuration
-        guild_config = admin.config[f"{message.guild.id}"]["mute"]
+        guild_config = config.config[f"{message.guild.id}"]["mute"]
 
         # Checks if member is muted and deletes message if so
         if message.author.id in guild_config["muted-members"]:
@@ -35,7 +35,7 @@ class ModerationModule(commands.Cog):
                     invoke_without_command=True)
     @commands.has_permissions(manage_messages=True)
     async def mute(self, ctx: commands.Context, intent=None, member: Member = None):
-        guild_config = admin.config[f"{ctx.guild.id}"]["mute"]
+        guild_config = config.config[f"{ctx.guild.id}"]["mute"]
 
         if intent:
             if intent.lower() == "add":
@@ -47,7 +47,7 @@ class ModerationModule(commands.Cog):
     async def mute_add(self, ctx: commands.Context, member: Member):
 
         # Makes an easier to use pointer to specific section of config
-        guild_config = admin.config[f"{ctx.guild.id}"]["mute"]
+        guild_config = config.config[f"{ctx.guild.id}"]["mute"]
 
         if member.id in guild_config["muted-members"]:
             raise MemberAlreadyAssigned("That member is already a part of the list.")
@@ -60,7 +60,7 @@ class ModerationModule(commands.Cog):
     async def mute_remove(self, ctx: commands.Context, member: Member):
 
         # Makes an easier to use pointer to specific section of config
-        guild_config = admin.config[f"{ctx.guild.id}"]["mute"]
+        guild_config = config.config[f"{ctx.guild.id}"]["mute"]
 
         if str(member.id) in guild_config["muted-members"]:
             guild_config["muted-members"].remove(member.id)
