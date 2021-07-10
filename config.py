@@ -6,7 +6,7 @@ def load_data(file):
         with open(file, "r", encoding="utf-8") as f:
             return load(f)
     except FileNotFoundError:
-        return None
+        return {}
 
 
 def save_data(data, file) -> None:
@@ -15,7 +15,9 @@ def save_data(data, file) -> None:
         f.truncate()
         return
 
-default_configuration = {
+
+def get_default_configuration() -> dict:
+    return {
         "name": None,
         "greetings": {
             "enabled": True,
@@ -37,6 +39,7 @@ default_configuration = {
             "muted-members": []
         }
     }
+
 
 config = load_data("./data/serverconfig.json")
 greetings = load_data("./data/greetings.json")

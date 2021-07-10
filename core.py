@@ -1,8 +1,7 @@
 from os import listdir, getenv
-from json import dump
 from discord import Embed, File, Guild, Activity, ActivityType, Intents
 from discord.ext import commands, tasks
-from copy import copy
+from copy import copy, deepcopy
 from logging import getLogger, DEBUG, FileHandler, Formatter
 import config
 
@@ -14,15 +13,13 @@ logger.addHandler(handler)
 
 TOKEN = getenv("TOKEN")
 ADMIN = getenv("ADMIN")
-RAWG_KEY = getenv("RAWG_KEY")
 PREFIX = getenv("PREFIX", "-")
+CONFIG_LOCATION = "./data/serverconfig.json"
 
 if TOKEN is None:
     raise Exception("No token provided.")
 if ADMIN is None:
     print("[WARN] No bot administrator was defined. Low level bot access will be impossible!")
-if RAWG_KEY is None:
-    print("[WARN] No RAWG key was detected, command 'game' will be disabled.")
 
 
 class AdminBot(commands.Bot):
@@ -32,36 +29,39 @@ class AdminBot(commands.Bot):
                          intents=kwargs['intents'],
                          activity=kwargs['activity'],
                          help_command=None)
-        self.token = TOKEN
         self.owner_id = int(ADMIN)
-        self.rawg_key = RAWG_KEY
         self.last_saved_config = None
 
     async def on_ready(self):
+
         for module in listdir('./modules'):
             if module.endswith('.py'):
                 self.load_extension(f'modules.{module[:-3]}')
 
         for guild in self.guilds:
-            if guild.id not in config.config:
+            if str(guild.id) not in config.config:
+
                 # Loads the default config and modifies it to fit the server
-                default_config = copy(config.default_configuration)
-                if guild.system_channel:
+                default_config = config.get_default_configuration()
+
+                if guild.system_channel is None:
+                    default_config["greetings"]["channel"] = None
+
+                else:
                     default_config["greetings"]["channel"] = guild.system_channel.id
+
                 default_config["name"] = guild.name
 
                 # Adds the server to the config, with the above configuration
                 config.config[f"{guild.id}"] = default_config
-        # Writes the new config to disk
-        self.save_configuration()
 
+        # Writes the new config to disk
         self.config_daemon.start()
 
     async def on_guild_join(self, guild: Guild) -> None:
-
         # If the server isn't in the config file, it loads the default config and modifies it to fit the server
         if str(guild.id) not in config.config:
-            default_config = config.default_configuration
+            default_config = config.get_default_configuration()
             default_config["greetings"]["channel"] = guild.system_channel.id
             default_config["name"] = guild.name
 
@@ -69,19 +69,12 @@ class AdminBot(commands.Bot):
             config.config[f"{guild.id}"] = default_config
 
             # Writes the new config to disk
-            self.save_configuration()
-
-    def save_configuration(self) -> None:
-        if not config.config == self.last_saved_config:
-            with open("./data/serverconfig.json", "w") as stored_config:
-                # This writes the configuration with the changes made to the disk.
-                dump(config.config, stored_config, indent=4)
-                stored_config.truncate()
+            config.save_data(config.config, CONFIG_LOCATION)
 
     @tasks.loop(minutes=1.0)
     async def config_daemon(self):
-        config.save_data(config.config, "./data/serverconfig.json")
-        self.last_saved_config = copy(config.config)
+        config.save_data(config.config, CONFIG_LOCATION)
+        self.last_saved_config = deepcopy(config.config)
 
 
 admin = AdminBot(intents=Intents.all(),
@@ -211,4 +204,4 @@ async def moderator_help(ctx: commands.Context):
 
 
 if __name__ == "__main__":
-    admin.run(admin.token)
+    admin.run(TOKEN)
