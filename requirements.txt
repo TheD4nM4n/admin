@@ -1,4 +1,0 @@
-discord.py~=1.7.2
-rawgpy~=1.0.3
-PyMoe~=1.0.6
-better-profanity~=0.7.0
