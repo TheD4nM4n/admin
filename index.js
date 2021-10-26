@@ -7,33 +7,25 @@ const { token } = require('./config.json');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 client.commands = new Collection();
 
-// Retrieval and parsing of commands in './commands' directory
+// Retrieval of commands and event data from ./commands and ./events
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
+// Parsing and adding commands
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     client.commands.set(command.data.name, command);
 }
 
-// Log on ready state
-client.once('ready', () => {
-    console.log(`Successfully logged in as ${client.user.username}.`);
-});
-
-// Command execution
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
-    const command = client.commands.get(interaction.commandName);
-
-    if (!command) return;
-
-    try {
-        await command.execute(interaction);
-    } catch (error) {
-        console.error(error);
-        await interaction.reply({ content: 'There was an error while running this command, please try again.', ephemeral: true });
+// Parsing and adding event listeners
+for (const file of eventFiles) {
+    const event = require(`./events/${file}`);
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args));
     }
-});
+}
 
 // Logging into Discord with access token (found in config.json)
 client.login(token);
