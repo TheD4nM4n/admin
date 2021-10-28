@@ -1,6 +1,5 @@
 const { MessageEmbed } = require('discord.js')
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { executionAsyncResource } = require('async_hooks');
 
 module.exports = {
     data: new SlashCommandBuilder()
