@@ -27,5 +27,6 @@ for (const file of eventFiles) {
     }
 }
 
+
 // Logging into Discord with access token (found in config.json)
 client.login(token);
