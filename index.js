@@ -4,7 +4,7 @@ const { Client, Intents, Collection } = require('discord.js');
 const { token } = require('./config.json');
 
 // Client and command collection initialization 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 client.commands = new Collection();
 
 // Retrieval of commands and event data from ./commands and ./events
