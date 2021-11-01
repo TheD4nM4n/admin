@@ -1,7 +1,7 @@
 module.exports = {
     // Command execution code
     name: 'interactionCreate',
-
+    once: false,
     execute(interaction) {
 
         if (!interaction.isCommand()) return;
