@@ -28,8 +28,8 @@ module.exports = {
     execute(client) {
         console.log(`Successfully logged in as ${client.user.username}.`);
 
-        fs.readFile('./data/guildConfig.json', (err, rawConfig) => {
-            const config = JSON.parse(rawConfig);
+        fs.readFile('./data/guildConfig.json', (err, configFile) => {
+            const config = JSON.parse(configFile);
 
             client.guilds.cache.forEach((guild) => {
 
@@ -37,21 +37,22 @@ module.exports = {
                     const guildConfig = JSON.parse(JSON.stringify(defaultConfig));
 
                     if (guild.systemChannel) {
-                        guildConfig['greetings']['channel'] = guild.systemChannel.id
+                        guildConfig['greetings']['channel'] = guild.systemChannel.id;
                     }
 
-                    guildConfig['name'] = guild.name
-                    config[`${guild.id}`] = guildConfig
+                    guildConfig['name'] = guild.name;
+                    config[`${guild.id}`] = guildConfig;
                 }
+            });
 
-                // TODO: Asynchronous non-corrupting config writing
-                const writableConfig = JSON.stringify(config, null, 2);
-                fs.writeFileSync('./data/guildConfig.json', writableConfig, err => {
-                    if (err) {
-                        console.log(err)
-                    }
-                })
-            })    
-        })
+            const writableConfig = JSON.stringify(config, null, 2);
+
+            fs.writeFile('./data/guildConfig.json', writableConfig, err => {
+                if (err) {
+                    console.log(err);
+                };
+            });
+               
+        });
     }
 }
