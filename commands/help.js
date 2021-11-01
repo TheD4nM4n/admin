@@ -1,6 +1,5 @@
-const { MessageEmbed, MessageAttachment } = require('discord.js')
+const { MessageAttachment } = require('discord.js')
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { execute } = require('../events/ready');
 
 module.exports = {
     data: new SlashCommandBuilder()
