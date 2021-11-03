@@ -10,6 +10,7 @@ const defaultConfig = {
   },
   'chat-filter': {
     enabled: true,
+    logging: true,
     'log-channel': null,
     'use-default-list': true,
     'custom-words': [],
