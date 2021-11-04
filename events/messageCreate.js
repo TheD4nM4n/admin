@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Filter = require('bad-words');
 const { MessageAttachment } = require('discord.js');
+const { strictEqual } = require('assert');
 
 const filter = new Filter();
 
@@ -10,12 +11,13 @@ module.exports = {
   execute(message) {
     fs.readFile('./data/guildConfig.json', (err, configFile) => {
       const config = JSON.parse(configFile);
-      let filterEnabled = config[`${message.guildId}`]['chat-filter']['enabled'];
-      let loggingEnabled = config[`${message.guildId}`]['chat-filter']['logging'];
-      let logChannelId = config[`${message.guildId}`]['chat-filter']['log-channel'];
-
+      const filterEnabled = config[`${message.guildId}`]['chat-filter']['enabled'];
+      const loggingEnabled = config[`${message.guildId}`]['chat-filter']['logging'];
+      const logChannelId = config[`${message.guildId}`]['chat-filter']['log-channel'];
+      const customWordList = config[`${message.guildId}`]['chat-filter']['custom-words'];
+      console.log(customWordList.some(v => message.content.includes(v)));
       if (filterEnabled) {
-        if (filter.isProfane(message.content)) {
+        if (filter.isProfane(message.content) || customWordList.some(v => message.content.includes(v))) {
           message.delete();
 
           if (loggingEnabled === true) {
@@ -39,11 +41,6 @@ module.exports = {
                   {
                     name: 'Message content:',
                     value: `${message.content}`,
-                    inline: true,
-                  },
-                  {
-                    name: 'Filtered message:',
-                    value: `${filter.clean(message.content)}`,
                     inline: true,
                   },
                 ],

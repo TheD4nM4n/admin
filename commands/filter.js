@@ -33,6 +33,27 @@ module.exports = {
         .addSubcommand(subcommand =>
           subcommand.setName('disable').setDescription('Disables infraction logging for the server.')
         )
+    )
+    .addSubcommandGroup(subcommandGroup =>
+      subcommandGroup
+        .setName('list')
+        .setDescription('Changes settings for the list of words banned by Admin.')
+        .addSubcommand(subcommand =>
+          subcommand
+            .setName('add')
+            .setDescription('Adds the defined word to the list of banned words for the server.')
+            .addStringOption(builder =>
+              builder.setName('word').setDescription('Word to add to the list of banned words.').setRequired(true)
+            )
+        )
+        .addSubcommand(subcommand =>
+          subcommand
+            .setName('remove')
+            .setDescription("Removes the word listed from this server's list.")
+            .addStringOption(builder =>
+              builder.setName('word').setDescription('Word to remove from the list of banned words.').setRequired(true)
+            )
+        )
     ),
   async execute(interaction) {
     if (interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
@@ -79,6 +100,48 @@ module.exports = {
                 });
               }
             });
+            break;
+        }
+      } else if (interaction.options.getSubcommandGroup((required = false)) === 'list') {
+        switch (interaction.options.getSubcommand()) {
+          case 'add':
+            const wordToAdd = interaction.options.getString('word');
+            config[`${interaction.guildId}`]['chat-filter']['custom-words'].push(wordToAdd);
+            fs.writeFile('./data/guildConfig.json', JSON.stringify(config, null, 2), err => {
+              if (err) {
+                return console.log(err);
+              } else {
+                return interaction.reply({
+                  content: `Added word ${wordToAdd} to the list. To remove, use \`/filter list remove\`.`,
+                  ephemeral: true,
+                });
+              }
+            });
+            break;
+
+          case 'remove':
+            const wordList = config[`${interaction.guildId}`]['chat-filter']['custom-words'];
+            const wordToRemove = interaction.options.getString('word');
+            const index = wordList.indexOf(wordToRemove);
+            if (index > -1) {
+              wordList.splice(index, 1);
+            } else {
+              return interaction.reply({
+                content: `The word '${wordToRemove}' wasn't found in the list. You should be good to go!`,
+                ephemeral: true,
+              });
+            }
+            fs.writeFile('./data/guildConfig.json', JSON.stringify(config, null, 2), err => {
+              if (err) {
+                return console.log(err);
+              } else {
+                return interaction.reply({
+                  content: `Removed word ${wordToRemove} from the list!`,
+                  ephemeral: true,
+                });
+              }
+            });
+            break;
         }
       } else if (interaction.options.getSubcommand() === 'enable') {
         config[`${interaction.guildId}`]['chat-filter']['enabled'] = true;
