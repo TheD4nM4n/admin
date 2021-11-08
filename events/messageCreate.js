@@ -10,7 +10,6 @@ module.exports = {
   once: false,
   execute(message) {
     fs.readFile('./data/guildConfig.json', (err, configFile) => {
-
       const config = JSON.parse(configFile);
       const filterEnabled = config[`${message.guildId}`]['chat-filter']['enabled'];
       const loggingEnabled = config[`${message.guildId}`]['chat-filter']['logging'];

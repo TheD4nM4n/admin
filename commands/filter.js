@@ -55,18 +55,18 @@ module.exports = {
             )
         )
         .addSubcommand(subcommand =>
-            subcommand
+          subcommand
             .setName('default')
             .setDescription('Allows enabling or disabling of the built-in list of banned words.')
             .addStringOption(option =>
-                option
+              option
                 .setName('state')
                 .setDescription('The state you would like the built-in profanity list to use.')
                 .setRequired(true)
                 .addChoice('enable', 'enable')
                 .addChoice('disable', 'disable')
-                )
             )
+        )
     ),
   async execute(interaction) {
     if (interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
@@ -155,27 +155,27 @@ module.exports = {
             });
             break;
 
-            case 'default':
-                const state = interaction.options.getString('state');
-                let messageContent = ''
-                if (state === 'enable') {
-                    config[`${interaction.guildId}`]['chat-filter']['use-default-list'] = true;
-                    messageContent = 'Enabled default list filtering!';
-                } else {
-                    config[`${interaction.guildId}`]['chat-filter']['use-default-list'] = false;
-                    messageContent = 'Disabled default list filtering!';
-                }
-                fs.writeFile('./data/guildConfig.json', JSON.stringify(config, null, 2), err => {
-                    if (err) {
-                        return console.log(err);
-                    } else {
-                        return interaction.reply({
-                            content: messageContent,
-                            ephemeral: true,
-                        });
-                    }
+          case 'default':
+            const state = interaction.options.getString('state');
+            let messageContent = '';
+            if (state === 'enable') {
+              config[`${interaction.guildId}`]['chat-filter']['use-default-list'] = true;
+              messageContent = 'Enabled default list filtering!';
+            } else {
+              config[`${interaction.guildId}`]['chat-filter']['use-default-list'] = false;
+              messageContent = 'Disabled default list filtering!';
+            }
+            fs.writeFile('./data/guildConfig.json', JSON.stringify(config, null, 2), err => {
+              if (err) {
+                return console.log(err);
+              } else {
+                return interaction.reply({
+                  content: messageContent,
+                  ephemeral: true,
                 });
-                break;
+              }
+            });
+            break;
         }
       } else if (interaction.options.getSubcommand() === 'enable') {
         config[`${interaction.guildId}`]['chat-filter']['enabled'] = true;
