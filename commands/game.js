@@ -15,30 +15,23 @@ module.exports = {
     let developerNames = '';
     let platformNames = '';
 
-    const response = await gb.search({
-      limit: 1,
-      query: query,
-      resources: ['game'],
-      format: 'json',
-    });
-
-    console.log(response.results);
-
-    if (response.results === undefined) {
-      return await interaction.reply({
-        content: 'Your query turned up no results! Was it spelled correctly?',
-        ephemeral: true,
-      });
-    }
-
-    const gameId = JSON.parse(
+    const response = JSON.parse(
       await gb.search({
         limit: 1,
         query: query,
         resources: ['game'],
         format: 'json',
       })
-    ).results[0].id;
+    );
+
+    if (response.results.length === 0) {
+      return await interaction.reply({
+        content: 'Your query turned up no results! Was it spelled correctly?',
+        ephemeral: true,
+      });
+    }
+
+    const gameId = response.results[0].id;
 
     const gameResults = JSON.parse(
       await gb.getGame({
