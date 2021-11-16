@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ContextMenuCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const GiantBomb = require('giant-bomb');
 
 const gb = new GiantBomb(
