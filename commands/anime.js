@@ -12,7 +12,7 @@ module.exports = {
     .addStringOption(builder =>
         builder
         .setName('query')
-        .setDescription('The search term to find information on.')
+        .setDescription('The anime to search for.')
         .setRequired(true)),
     async execute(interaction) {
         const query = interaction.options.getString('query');

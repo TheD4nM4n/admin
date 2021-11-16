@@ -8,7 +8,7 @@ const gb = new GiantBomb(
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('game')
-    .setDescription('Replies with information about the game title given.')
+    .setDescription('Searches for the game provided, and returns information about it.')
     .addStringOption(builder => builder.setName('query').setDescription('The game to search for.').setRequired(true)),
   async execute(interaction) {
     const query = interaction.options.getString('query');
