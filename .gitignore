@@ -1,3 +1,4 @@
 node_modules/
 commands/test.js
 .vscode/
+.DS_Store
