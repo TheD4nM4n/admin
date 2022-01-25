@@ -3,6 +3,7 @@ const Anilist = require('anilist-node');
 const { anilistToken } = require('../config.json');
 const fs = require('fs');
 
+// Anilist API object initialization
 const anilist = new Anilist(anilistToken);
 
 module.exports = {
@@ -15,9 +16,12 @@ module.exports = {
         .setDescription('The anime to search for.')
         .setRequired(true)),
     async execute(interaction) {
+        
+        // Fetching results from Anilist
         const query = interaction.options.getString('query');
         const results = await anilist.searchEntry.anime(query, null, 1, 1);
-
+        
+        // No search results error handling
         if (!results.media[0]) {
             return await interaction.reply({
                 content: 'Your query turned up no results! Was it spelled correctly?',
@@ -26,7 +30,8 @@ module.exports = {
         }
 
         const animeData = await anilist.media.anime(results.media[0].id)
-        
+
+        // Use object instead of embed builders to hopefully dodge any changes with discord.js methods
         const embed = {
             color: 0xff0000,
             title: animeData.title.romaji,

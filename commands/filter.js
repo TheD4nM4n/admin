@@ -7,14 +7,23 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('filter')
     .setDescription("Configuration for Admin's built-in chat filter.")
-    .addSubcommand(subcommand => subcommand.setName('enable').setDescription('Enables chat filtering in this server.'))
+
+    // /filter enable
+    .addSubcommand(subcommand =>
+      subcommand.setName('enable').setDescription('Enables chat filtering in this server.'))
+    
+    // /filter disable
     .addSubcommand(subcommand =>
       subcommand.setName('disable').setDescription('Disables chat filtering in this server.')
     )
+
+    // /filter log
     .addSubcommandGroup(subcommandGroup =>
       subcommandGroup
         .setName('log')
         .setDescription('Change settings for the built-in chat filter.')
+        
+        // /filter log channel
         .addSubcommand(subcommand =>
           subcommand
             .setName('channel')
@@ -27,17 +36,25 @@ module.exports = {
                 .setRequired(true)
             )
         )
+
+        // /filter log enable
         .addSubcommand(subcommand =>
           subcommand.setName('enable').setDescription('Enables infraction logging for the server.')
         )
+
+        // /filter log disable
         .addSubcommand(subcommand =>
           subcommand.setName('disable').setDescription('Disables infraction logging for the server.')
         )
     )
+
+    // /filter list
     .addSubcommandGroup(subcommandGroup =>
       subcommandGroup
         .setName('list')
         .setDescription('Changes settings for the list of words banned by Admin.')
+
+        // /filter list add
         .addSubcommand(subcommand =>
           subcommand
             .setName('add')
@@ -46,6 +63,8 @@ module.exports = {
               builder.setName('word').setDescription('Word to add to the list of banned words.').setRequired(true)
             )
         )
+
+        // /filter list remove
         .addSubcommand(subcommand =>
           subcommand
             .setName('remove')
@@ -54,6 +73,8 @@ module.exports = {
               builder.setName('word').setDescription('Word to remove from the list of banned words.').setRequired(true)
             )
         )
+
+        // /filter list default
         .addSubcommand(subcommand =>
           subcommand
             .setName('default')
