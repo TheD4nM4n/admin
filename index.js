@@ -1,7 +1,7 @@
 // Necessary requirements
-const fs = require('fs');
-const { Client, Intents, Collection } = require('discord.js');
-const { token } = require('./config.json');
+const fs = require("fs");
+const { Client, Intents, Collection } = require("discord.js");
+const { token } = require("./config.json");
 
 // Client and command collection initialization
 const client = new Client({
@@ -10,8 +10,12 @@ const client = new Client({
 client.commands = new Collection();
 
 // Retrieval of commands and event data from ./commands and ./events
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+const commandFiles = fs
+  .readdirSync("./commands")
+  .filter((file) => file.endsWith(".js"));
+const eventFiles = fs
+  .readdirSync("./events")
+  .filter((file) => file.endsWith(".js"));
 
 // Parsing and adding commands
 for (const file of commandFiles) {

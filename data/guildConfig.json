@@ -1,3 +1,94 @@
 {
-  
+  "501406927650291723": {
+    "name": "CMS VGC",
+    "greetings": {
+      "enabled": true,
+      "channel": "740457161850748939"
+    },
+    "reaction-roles": {
+      "enabled": true
+    },
+    "chat-filter": {
+      "enabled": true,
+      "logging": true,
+      "log-channel": null,
+      "use-default-list": true,
+      "custom-words": [],
+      "whitelisted-channels": [],
+      "whitelisted-members": []
+    },
+    "mute": {
+      "enabled": true,
+      "muted-members": []
+    }
+  },
+  "699630093630439476": {
+    "name": "VGC Worldwide™",
+    "greetings": {
+      "enabled": true,
+      "channel": null
+    },
+    "reaction-roles": {
+      "enabled": true
+    },
+    "chat-filter": {
+      "enabled": true,
+      "logging": true,
+      "log-channel": null,
+      "use-default-list": true,
+      "custom-words": [],
+      "whitelisted-channels": [],
+      "whitelisted-members": []
+    },
+    "mute": {
+      "enabled": true,
+      "muted-members": []
+    }
+  },
+  "763461951640567882": {
+    "name": "Everyone Games™",
+    "greetings": {
+      "enabled": true,
+      "channel": "799763478934978630"
+    },
+    "reaction-roles": {
+      "enabled": true
+    },
+    "chat-filter": {
+      "enabled": true,
+      "logging": true,
+      "log-channel": null,
+      "use-default-list": true,
+      "custom-words": [],
+      "whitelisted-channels": [],
+      "whitelisted-members": []
+    },
+    "mute": {
+      "enabled": true,
+      "muted-members": []
+    }
+  },
+  "941141259098144779": {
+    "name": "Admin Development",
+    "greetings": {
+      "enabled": true,
+      "channel": "941141259827937372"
+    },
+    "reaction-roles": {
+      "enabled": true
+    },
+    "chat-filter": {
+      "enabled": true,
+      "logging": true,
+      "log-channel": null,
+      "use-default-list": true,
+      "custom-words": [],
+      "whitelisted-channels": [],
+      "whitelisted-members": []
+    },
+    "mute": {
+      "enabled": true,
+      "muted-members": []
+    }
+  }
 }

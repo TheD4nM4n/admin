@@ -1,6 +1,6 @@
 module.exports = {
   // Command execution code
-  name: 'interactionCreate',
+  name: "interactionCreate",
   once: false,
   execute(interaction) {
     if (!interaction.isCommand()) return;
@@ -13,7 +13,8 @@ module.exports = {
     } catch (error) {
       console.error(error);
       interaction.reply({
-        content: 'There was an error while running this command, please try again.',
+        content:
+          "There was an error while running this command, please try again.",
         ephemeral: true,
       });
     }
