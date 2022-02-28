@@ -18,7 +18,7 @@ module.exports = {
       .addFields(
         {
           name: "Member Statistics",
-          value: `Member count: ${interaction.guild.memberCount}\nAverage members/day: *Coming Soon*`,
+          value: `Member count: ${interaction.guild.memberCount}`,
           inline: true,
         },
         {
